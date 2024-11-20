@@ -119,22 +119,24 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET && !clkLastTick){// when clock high and was low last tick
-		  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET){ //if data line high
-		  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //write high to LED
-		  		  bits_sent[currentIndex] = 1; // write high to bit array
+	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
+		  if(!clkLastTick){// when clock high and was low last tick
+			  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET){ //if data line high
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //write high to LED
+					  bits_sent[currentIndex] = 1; // write high to bit array
 
-		  	  } else {
-		  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //otherwise to opposite
-		  		bits_sent[currentIndex] = 0;
-		  	  }
-		  clkLastTick = 1; //set last clock tick to high and
-		  msSinceLastClkTick = HAL_GetTick(); //record time of last clock on
-		  ++currentIndex; // increment in bit array
+				  } else {
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //otherwise to opposite
+					bits_sent[currentIndex] = 0;
+				  }
+			  clkLastTick = 1; //set last clock tick to high and
+			  ++currentIndex; // increment in bit array
+		  }
+		  msSinceLastClkTick = HAL_GetTick(); //always record time of last clock on
 	  }
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_RESET){ //if clock low
 		  clkLastTick = 0; // set last clock last tick to low
-	  }
+		  }
 	  if(currentIndex == 24){//once bit array full, convert to data array
 		  int currentPacket = 0;
 		  for(unsigned short i = 0; i < sizeof(bits_sent); ++i){
