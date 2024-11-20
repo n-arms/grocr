@@ -98,6 +98,10 @@ int main(void)
   bool clkLastTick = 0;
   uint64_t msSinceLastClkTick = HAL_GetTick();
 
+  int dataSent[10];
+  memset(dataSent, 0, sizeof(bits_sent));
+  short packetIndex = 0;
+
 
 
 while(HAL_GetTick()-msSinceLastClkTick < 500){
@@ -132,6 +136,13 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){
 		  clkLastTick = 0;
 	  }
 	  if(currentIndex == 24){
+		  int currentPacket = 0;
+		  for(unsigned short i = 0; i < sizeof(bits_sent); ++i){
+			  currentPacket |= bits_sent[i];
+			  currentPacket <<= 1;
+		  }
+		  dataSent[packetIndex] = currentPacket;
+		  ++packetIndex;
 		  currentIndex = 0;
 	  }
 	  if((HAL_GetTick()-msSinceLastClkTick) >= 500){
