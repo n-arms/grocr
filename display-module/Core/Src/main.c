@@ -136,6 +136,14 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	  if (poll_I2C_driver(&driver)) {
 		  memcpy(data, get_I2C_driver(&driver), 24);
 		  reset_I2C_driver(&driver);
+
+		  uint64_t number = 0;
+
+		  for (int i = 0; i < 24; i++) {
+			  number = number * 2 + (data[i] ? 1 : 0);
+		  }
+
+		  __NOP();
 	  }
 	  /*
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
