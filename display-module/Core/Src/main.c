@@ -140,8 +140,8 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	  if(currentIndex == 24){//once bit array full, convert to data array
 		  int currentPacket = 0;
 		  for(short i = sizeof(bits_sent); i>0; --i){
-			  currentPacket |= bits_sent[i];
 			  currentPacket <<= 1;
+			  currentPacket |= bits_sent[i];
 		  }
 		  dataSent[packetIndex] = currentPacket;
 		  ++packetIndex;
