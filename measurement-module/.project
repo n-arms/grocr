@@ -31,9 +31,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>shared_src</name>
+			<name>i2c</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/shared/src</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/i2c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
