@@ -110,8 +110,9 @@ int main(void)
   I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 24);
 
   uint64_t next_data = HAL_GetTick();
-  bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
-  //int24_to_bool(1234567,data);
+  //bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
+  bool data[24];
+  int24_to_bool(696969,data);
   /* USER CODE END 2 */
 
   /* Infinite loop */
