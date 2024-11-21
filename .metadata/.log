@@ -46,3 +46,6 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64
 
 !ENTRY org.eclipse.help.base 2 0 2024-11-21 15:07:28.405
 !MESSAGE Unable to consume Lucene index from bundle 'org.eclipse.cdt.doc.user_11.4.0.202309142347 [184]'. The index should be rebuilt with Lucene 9.8.0
+
+!ENTRY org.eclipse.cdt.core 1 0 2024-11-21 15:41:22.760
+!MESSAGE Indexed 'display-module' (26 sources, 127 headers) in 2.47 sec: 11,924 declarations; 43,815 references; 1 unresolved inclusions; 92 syntax errors; 240 unresolved names (0.43%)

@@ -21,8 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "i2c_tx.h"
-#include "hello.h"
+#include "i2c_rx.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -114,14 +113,14 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	}
 }
 */
-  I2C_config config;
+  I2C_rx_config config;
   config.clock_gpio = GPIOC;
   config.clock_pin = GPIO_PIN_0;
   config.data_gpio = GPIOC;
   config.data_pin = GPIO_PIN_1;
 
   bool data[24];
-  I2C_driver driver = new_I2C_driver(config, data, 24, 500);
+  I2C_rx_driver driver = new_I2C_rx_driver(config, data, 24, 500);
 
   /* USER CODE END 2 */
 
@@ -132,7 +131,7 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  tick_I2C_driver(&driver);
+	  tick_I2C_rx_driver(&driver);
 
 	  if (poll_I2C_driver(&driver)) {
 		  memcpy(data, get_I2C_driver(&driver), 24);

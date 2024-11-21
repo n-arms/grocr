@@ -1,13 +1,13 @@
 #include "i2c_tx.h"
 #include "data_packet.h"
 
-I2C_driver new_I2C_driver(I2C_config config, size_t packet_length) {
+I2C_tx_driver new_I2C_tx_driver(I2C_tx_config config, size_t packet_length) {
 	data_packet current = {
 		.data = malloc(sizeof(bool) * packet_length),
 		.length = packet_length,
 		.current_index = 0
 	};
-	I2C_driver driver = {
+	I2C_tx_driver driver = {
 		.next_tick = HAL_GetTick(),
 		.sending_data = false,
 		.state = DATA_OFF,
@@ -17,11 +17,11 @@ I2C_driver new_I2C_driver(I2C_config config, size_t packet_length) {
 	return driver;
 }
 
-void free_I2C_driver(I2C_driver *driver) {
+void free_I2C_driver(I2C_tx_driver *driver) {
 	free((driver -> current).data);
 }
 
-void tick_I2C_driver(I2C_driver *driver) {
+void tick_I2C_tx_driver(I2C_tx_driver *driver) {
 	if (driver -> sending_data && HAL_GetTick() > driver -> next_tick) {
 		if (driver -> state == DATA_OFF) {
 			driver -> state = DATA_ON_CLOCK_LOW;
@@ -48,7 +48,7 @@ void tick_I2C_driver(I2C_driver *driver) {
 
 // SAFETY: data must be an array of at least `(driver -> current).length` elements
 // OWNERSHIP: data is not borrowed by the I2C_driver and may be deallocated or overwritten as soon as `send_packet_I2C_driver` returns
-void send_packet_I2C_driver(I2C_driver *driver, bool data[]) {
+void send_packet_I2C_driver(I2C_tx_driver *driver, bool data[]) {
 	if (!driver -> sending_data) {
 		reset_data_packet(&driver -> current, data);
 		driver -> sending_data = true;

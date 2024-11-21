@@ -2,6 +2,7 @@
 #define __DATA_PACKET_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct data_packet {
   bool *data;

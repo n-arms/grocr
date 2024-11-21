@@ -6,7 +6,8 @@ data_packet new_data_packet(bool *data, size_t length) {
   data_packet result;
   result.data = data;
   result.length = length;
-  result.current_index = current_index;
+  result.current_index = 0;
+  return result;
 }
 
 bool pop_data_packet(data_packet *packet) {

@@ -22,7 +22,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "i2c_tx.h"
-#include "hello.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,13 +101,13 @@ int main(void)
       }
   }
 
-  I2C_config i2c_config;
+  I2C_tx_config i2c_config;
   i2c_config.clock_gpio = GPIOC;
   i2c_config.clock_pin = GPIO_PIN_0;
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
   i2c_config.millis_per_tick = 100;
-  I2C_driver i2c = new_I2C_driver(i2c_config, 12);
+  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 12);
 
   uint64_t next_data = HAL_GetTick();
   bool data[12] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1 }; //, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
@@ -122,7 +121,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	 tick_I2C_driver(&i2c);
+	 tick_I2C_tx_driver(&i2c);
 
 	 uint64_t current_time = HAL_GetTick();
 

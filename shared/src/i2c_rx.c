@@ -1,13 +1,13 @@
 #include "i2c_rx.h"
 #include "data_packet.h"
 
-I2C_driver new_I2C_driver(I2C_config config, bool *data, size_t packet_size, uint64_t message_dead_time) {
+I2C_rx_driver new_I2C_rx_driver(I2C_rx_config config, bool *data, size_t packet_size, uint64_t message_dead_time) {
 	data_packet packet;
 	packet.data = data;
 	packet.current_index = 0;
 	packet.length = packet_size;
 
-	I2C_driver driver;
+	I2C_rx_driver driver;
 	driver.clock_high = false;
 	driver.last_tick = HAL_GetTick();
 	driver.packet = packet;
@@ -18,7 +18,7 @@ I2C_driver new_I2C_driver(I2C_config config, bool *data, size_t packet_size, uin
 	return driver;
 }
 
-void tick_I2C_driver(I2C_driver *driver) {
+void tick_I2C_rx_driver(I2C_rx_driver *driver) {
 	bool clock = HAL_GPIO_ReadPin(driver -> config.clock_gpio, driver -> config.clock_pin) == GPIO_PIN_SET;
 
 	if (clock != driver -> clock_high) {
@@ -42,16 +42,16 @@ void tick_I2C_driver(I2C_driver *driver) {
 	}
 }
 
-bool poll_I2C_driver(I2C_driver *driver) {
+bool poll_I2C_driver(I2C_rx_driver *driver) {
 	return driver -> is_new;
 }
 
 // only valid data if `poll_I2C_driver` returns true
-bool *get_I2C_driver(I2C_driver *driver) {
+bool *get_I2C_driver(I2C_rx_driver *driver) {
 	return driver -> packet.data;
 }
 
-void reset_I2C_driver(I2C_driver *driver) {
+void reset_I2C_driver(I2C_rx_driver *driver) {
 	driver -> is_new = false;
 	driver -> packet.current_index = 0;
 }
