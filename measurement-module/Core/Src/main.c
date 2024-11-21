@@ -21,8 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
-
+#include "i2c.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,11 +51,11 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 #define CLK_PIN GPIO_PIN_0
 #define DATA_PIN GPIO_PIN_1
@@ -93,12 +92,17 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  bool data[24] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
-  int currentIndex = 0;
-  int dataLength = 24;
 
-  uint64_t next_tick = HAL_GetTick();
-  bool clockHigh = false;
+  I2C_config i2c_config;
+  i2c_config.clock_gpio = GPIOC;
+  i2c_config.clock_pin = GPIO_PIN_0;
+  i2c_config.data_gpio = GPIOC;
+  i2c_config.data_pin = GPIO_PIN_1;
+  i2c_config.millis_per_tick = 100;
+  I2C_driver i2c = new_I2C_driver(i2c_config, 24);
+
+  uint64_t next_data = HAL_GetTick();
+  bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,25 +112,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (HAL_GetTick() > next_tick) {
-	  		if (clockHigh) {
-	  			clockHigh = false;
-	  			HAL_GPIO_WritePin(GPIOC, CLK_PIN, GPIO_PIN_RESET);
-	  			next_tick += 50;
-	  		} else {
-	  			HAL_GPIO_WritePin(GPIOC, DATA_PIN, (data[currentIndex]) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-	  			currentIndex += 1;
-	  			HAL_GPIO_WritePin(GPIOC, CLK_PIN, GPIO_PIN_SET);
-	  			clockHigh = true;
-	  			next_tick += 50;
+	 tick_I2C_driver(&i2c);
 
-	  			if (currentIndex == 24) {
-	  				next_tick += 1000;
-	  				currentIndex = 0;
-	  			}
-	  		}
-	  	}
+	 uint64_t current_time = HAL_GetTick();
+
+	 if (HAL_GetTick() > next_data) {
+		 next_data += 4000;
+
+		 send_packet_I2C_driver(&i2c, data);
+	 }
   }
+  free_I2C_driver(&i2c);
   /* USER CODE END 3 */
 }
 
