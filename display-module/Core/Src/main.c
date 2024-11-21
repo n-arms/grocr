@@ -18,10 +18,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <stdbool.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "i2c.h"
+#include <string.h>
+#include <stdbool.h>
 
 /* USER CODE END Includes */
 
@@ -92,6 +94,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  /*
   bool bits_sent[24];
   memset(bits_sent, 0, sizeof(bits_sent));
   short currentIndex = 0;
@@ -109,6 +112,15 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 		msSinceLastClkTick = HAL_GetTick();
 	}
 }
+*/
+  I2C_config config;
+  config.clock_gpio = GPIOC;
+  config.clock_pin = GPIO_PIN_0;
+  config.data_gpio = GPIOC;
+  config.data_pin = GPIO_PIN_1;
+
+  bool data[24];
+  I2C_driver driver = new_I2C_driver(config, data, 24, 500);
 
   /* USER CODE END 2 */
 
@@ -119,6 +131,13 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  tick_I2C_driver(&driver);
+
+	  if (poll_I2C_driver(&driver)) {
+		  memcpy(data, get_I2C_driver(&driver), 24);
+		  reset_I2C_driver(&driver);
+	  }
+	  /*
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
 		  if(!clkLastTick){// when clock high and was low last tick
 			  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET){ //if data line high
@@ -137,7 +156,7 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_RESET){ //if clock low
 		  clkLastTick = 0; // set last clock last tick to low
 		  }
-	  if(currentIndex == 24){//once bit array full, convert to data array
+	  if(currentIndex == 3){//once bit array full, convert to data array
 		  int currentPacket = 0;
 		  for(short i = sizeof(bits_sent); i>0; --i){
 			  currentPacket <<= 1;
@@ -150,7 +169,7 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	  if((HAL_GetTick()-msSinceLastClkTick) >= 500){// reset bit packet index if between packet sends
 		  currentIndex = 0;
 	  }
-
+	  */
   }
   /* USER CODE END 3 */
 }
