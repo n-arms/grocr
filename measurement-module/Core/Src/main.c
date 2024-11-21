@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "i2c.h"
+#include "i2c_tx.h"
+#include "hello.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
