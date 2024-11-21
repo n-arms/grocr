@@ -1,0 +1,50 @@
+15:25:08 **** Incremental Build of configuration Debug for project measurement-module ****
+make -j12 all 
+arm-none-eabi-gcc "C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../../shared/inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"shared_src/data_packet.d" -MT"shared_src/data_packet.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "shared_src/data_packet.o"
+arm-none-eabi-gcc "C:/Users/north/Documents/code/cpp/grocr/shared/src/i2c_rx.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../../shared/inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"shared_src/i2c_rx.d" -MT"shared_src/i2c_rx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "shared_src/i2c_rx.o"
+arm-none-eabi-gcc "C:/Users/north/Documents/code/cpp/grocr/shared/src/i2c_tx.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../../shared/inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"shared_src/i2c_tx.d" -MT"shared_src/i2c_tx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "shared_src/i2c_tx.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../../shared/inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+In file included from C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:1:
+../../shared/inc/data_packet.h:8:3: error: unknown type name 'size_t'
+    8 |   size_t length;
+      |   ^~~~~~
+../../shared/inc/data_packet.h:9:3: error: unknown type name 'size_t'
+    9 |   size_t current_index;
+      |   ^~~~~~
+../../shared/inc/data_packet.h:12:41: error: unknown type name 'size_t'
+   12 | data_packet new_data_packet(bool *data, size_t length);
+      |                                         ^~~~~~
+../../shared/inc/data_packet.h:5:1: note: 'size_t' is defined in header '<stddef.h>'; did you forget to '#include <stddef.h>'?
+    4 | #include <stdbool.h>
+  +++ |+#include <stddef.h>
+    5 | 
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:3:41: error: unknown type name 'size_t'
+    3 | data_packet new_data_packet(bool *data, size_t length) {
+      |                                         ^~~~~~
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:2:1: note: 'size_t' is defined in header '<stddef.h>'; did you forget to '#include <stddef.h>'?
+    1 | #include "data_packet.h"
+  +++ |+#include <stddef.h>
+    2 | 
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c: In function 'reset_data_packet':
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:22:9: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+   22 |         memcpy(packet -> data, new_data, packet -> length);
+      |         ^~~~~~
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:2:1: note: include '<string.h>' or provide a declaration of 'memcpy'
+    1 | #include "data_packet.h"
+  +++ |+#include <string.h>
+    2 | 
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:22:9: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+   22 |         memcpy(packet -> data, new_data, packet -> length);
+      |         ^~~~~~
+C:/Users/north/Documents/code/cpp/grocr/shared/src/data_packet.c:22:9: note: include '<string.h>' or provide a declaration of 'memcpy'
+make: *** [shared_src/subdir.mk:25: shared_src/data_packet.o] Error 1
+make: *** Waiting for unfinished jobs....
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:127:19: warning: unused variable 'current_time' [-Wunused-variable]
+  127 |          uint64_t current_time = HAL_GetTick();
+      |                   ^~~~~~~~~~~~
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:96:8: warning: 'int24_to_bool' defined but not used [-Wunused-function]
+   96 |   void int24_to_bool(int number, bool arr[24]) {
+      |        ^~~~~~~~~~~~~
+"make -j12 all" terminated with exit code 2. Build might be incomplete.

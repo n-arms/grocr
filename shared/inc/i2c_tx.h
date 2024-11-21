@@ -2,15 +2,10 @@
 #define __I2C_H
 
 #include "stm32f4xx_hal.h"
+#include "data_packet.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct data_packet {
-	bool *data;
-	size_t length;
-	size_t current_index;
-} data_packet;
 
 typedef struct I2C_config {
 	// GPIO config
@@ -38,12 +33,6 @@ typedef struct I2C_driver {
 
 	I2C_config config;
 } I2C_driver;
-
-bool pop_data_packet(data_packet *packet);
-
-bool data_packet_is_done(data_packet *packet);
-
-void reset_data_packet(data_packet *packet, bool *new_data);
 
 I2C_driver new_I2C_driver(I2C_config config, size_t packet_length);
 
