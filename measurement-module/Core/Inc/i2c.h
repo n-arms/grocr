@@ -23,13 +23,17 @@ typedef struct I2C_config {
 	uint64_t millis_per_tick;
 } I2C_config;
 
+typedef enum driver_state {
+	DATA_OFF, DATA_ON_CLOCK_LOW, DATA_ON_CLOCK_HIGH
+} driver_state;
+
 // OWNERSHIP: `clock_gpio` and `data_gpio` are borrowed by I2C_driver and must be valid for its lifetime
 // OWNERSHIP: `current.data` is owned by I2C_driver and will be destroyed in free_I2C_driver
 typedef struct I2C_driver {
 	// driver state
 	uint64_t next_tick;
 	bool sending_data;
-	bool clock_high;
+	driver_state state;
 	data_packet current;
 
 	I2C_config config;

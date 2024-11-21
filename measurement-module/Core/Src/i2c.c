@@ -26,7 +26,7 @@ I2C_driver new_I2C_driver(I2C_config config, size_t packet_length) {
 	I2C_driver driver = {
 		.next_tick = HAL_GetTick(),
 		.sending_data = false,
-		.clock_high = false,
+		.state = DATA_OFF,
 		.current = current,
 		.config = config
 	};
@@ -39,21 +39,26 @@ void free_I2C_driver(I2C_driver *driver) {
 
 void tick_I2C_driver(I2C_driver *driver) {
 	if (driver -> sending_data && HAL_GetTick() > driver -> next_tick) {
-		if (driver -> clock_high) {
-			driver -> clock_high = false;
-			driver -> next_tick += driver -> config.millis_per_tick;
-			HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_RESET);
-		} else {
-			driver -> clock_high = true;
-			driver -> next_tick += driver -> config.millis_per_tick;
+		if (driver -> state == DATA_OFF) {
+			driver -> state = DATA_ON_CLOCK_LOW;
+			driver -> next_tick += driver -> config.millis_per_tick / 2;
 			bool bit = pop_data_packet(&driver -> current);
 			HAL_GPIO_WritePin(driver -> config.data_gpio, driver -> config.data_pin, bit ? GPIO_PIN_SET : GPIO_PIN_RESET);
+		} else if (driver -> state == DATA_ON_CLOCK_LOW) {
+			driver -> state = DATA_ON_CLOCK_HIGH;
+			driver -> next_tick += driver -> config.millis_per_tick;
 			HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_SET);
+		} else {
+			driver -> state = DATA_OFF;
+			driver -> next_tick += driver -> config.millis_per_tick / 2;
+			HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_RESET);
 
 			if (data_packet_is_done(&driver -> current)) {
 				driver -> sending_data = false;
 			}
 		}
+	} else if(!driver -> sending_data){
+		HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_RESET);
 	}
 }
 
