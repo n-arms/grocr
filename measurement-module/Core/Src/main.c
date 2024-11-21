@@ -107,7 +107,7 @@ int main(void)
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
   i2c_config.millis_per_tick = 10;
-  I2C_driver i2c = new_I2C_driver(i2c_config, 24);
+  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 24);
 
   uint64_t next_data = HAL_GetTick();
   bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
