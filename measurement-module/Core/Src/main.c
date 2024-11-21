@@ -107,11 +107,11 @@ int main(void)
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
   i2c_config.millis_per_tick = 100;
-  I2C_driver i2c = new_I2C_driver(i2c_config, 12);
+  I2C_driver i2c = new_I2C_driver(i2c_config, 24);
 
   uint64_t next_data = HAL_GetTick();
-  bool data[12] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1 }; //, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
-  //int24_to_bool(123456789,data);
+  bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
+  //int24_to_bool(1234567,data);
   /* USER CODE END 2 */
 
   /* Infinite loop */
