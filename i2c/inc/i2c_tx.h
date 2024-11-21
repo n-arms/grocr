@@ -3,28 +3,22 @@
 
 #include "stm32f4xx_hal.h"
 #include "data_packet.h"
+#include "i2c_config.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct I2C_tx_config {
-	// GPIO config
-	GPIO_TypeDef *clock_gpio;
-	uint32_t clock_pin;
-	GPIO_TypeDef *data_gpio;
-	uint32_t data_pin;
-
-	// driver config
-	uint64_t millis_per_tick;
-} I2C_tx_config;
-
-typedef enum driver_state {
-	CLOCK_END, DATA_ON_CLOCK_LOW, DATA_ON_CLOCK_HIGH
+typedef enum driver_state
+{
+	CLOCK_END,
+	DATA_ON_CLOCK_LOW,
+	DATA_ON_CLOCK_HIGH
 } driver_state;
 
 // OWNERSHIP: `clock_gpio` and `data_gpio` are borrowed by I2C_driver and must be valid for its lifetime
 // OWNERSHIP: `current.data` is owned by I2C_driver and will be destroyed in free_I2C_driver
-typedef struct I2C_tx_driver {
+typedef struct I2C_tx_driver
+{
 	// driver state
 	uint64_t next_tick;
 	bool sending_data;

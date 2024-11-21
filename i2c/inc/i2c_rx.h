@@ -1,20 +1,14 @@
 #ifndef __I2C_H
 #define __I2C_H
 
-#include <stdbool.h>
 #include "stm32f4xx_hal.h"
 #include "data_packet.h"
+#include "i2c_config.h"
 #include <stdlib.h>
+#include <stdbool.h>
 
-typedef struct I2C_rx_config {
-	// GPIO config
-	GPIO_TypeDef *clock_gpio;
-	uint32_t clock_pin;
-	GPIO_TypeDef *data_gpio;
-	uint32_t data_pin;
-} I2C_rx_config;
-
-typedef struct I2C_rx_driver {
+typedef struct I2C_rx_driver
+{
 	uint64_t last_tick;
 	data_packet packet;
 	bool is_new;
