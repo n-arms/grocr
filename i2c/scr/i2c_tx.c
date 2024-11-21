@@ -10,7 +10,7 @@ I2C_tx_driver new_I2C_tx_driver(I2C_tx_config config, size_t packet_length) {
 	I2C_tx_driver driver = {
 		.next_tick = HAL_GetTick(),
 		.sending_data = false,
-		.state = DATA_OFF,
+		.state = CLOCK_END,
 		.current = current,
 		.config = config
 	};
@@ -23,7 +23,7 @@ void free_I2C_driver(I2C_tx_driver *driver) {
 
 void tick_I2C_tx_driver(I2C_tx_driver *driver) {
 	if (driver -> sending_data && HAL_GetTick() > driver -> next_tick) {
-		if (driver -> state == DATA_OFF) {
+		if (driver -> state == CLOCK_END) {
 			driver -> state = DATA_ON_CLOCK_LOW;
 			driver -> next_tick += driver -> config.millis_per_tick / 2;
 			bool bit = pop_data_packet(&driver -> current);
@@ -33,7 +33,7 @@ void tick_I2C_tx_driver(I2C_tx_driver *driver) {
 			driver -> next_tick += driver -> config.millis_per_tick;
 			HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_SET);
 		} else {
-			driver -> state = DATA_OFF;
+			driver -> state = CLOCK_END;
 			driver -> next_tick += driver -> config.millis_per_tick / 2;
 			HAL_GPIO_WritePin(driver -> config.clock_gpio, driver -> config.clock_pin, GPIO_PIN_RESET);
 

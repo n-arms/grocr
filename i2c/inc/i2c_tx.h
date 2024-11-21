@@ -19,7 +19,7 @@ typedef struct I2C_tx_config {
 } I2C_tx_config;
 
 typedef enum driver_state {
-	DATA_OFF, DATA_ON_CLOCK_LOW, DATA_ON_CLOCK_HIGH
+	CLOCK_END, DATA_ON_CLOCK_LOW, DATA_ON_CLOCK_HIGH
 } driver_state;
 
 // OWNERSHIP: `clock_gpio` and `data_gpio` are borrowed by I2C_driver and must be valid for its lifetime
