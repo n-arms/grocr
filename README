@@ -1,0 +1,34 @@
+grocr - liquid measurement and prediction device firmware
+=========================================================
+grocr contains multiple software modules which contribute to the STM32 firmware
+implementing a liquid measurement and prediction device (LMPD).  The LMPD
+models liquid usage rates, indicates levels, warns when liquid is running low,
+and predicts when liquid levels must be replenished.
+
+The following software modules are implemented:
+- i2c (I2C code)
+- ham (Hamming Error Correction code)
+- lc  (Load Cell driver)
+- lcd (LCD driver)
+- lsr (Linear Regression code)
+
+The following firmware modules are implemented:
+- display-mod (using i2c, ham, lcd, and lsr)
+- measure-mod (using i2c, ham, and lc)
+
+An explanation of each of the software modules follows:
+
+i2c
+---
+
+ham
+---
+
+lc
+--
+
+lcd
+---
+
+lsr
+---
