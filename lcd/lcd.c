@@ -5,36 +5,26 @@
 #include <stdint.h>
 #include <string.h>
 
-typedef enum enable {
-	DISABLE = 0,
-	ENABLE = 1
-} enable_t;
+#include "lcd.h"
 
-typedef enum rw {
-	WRITE = 0,
-	READ = 1
-} rw_t;
+static void enable(lcd_t *lcd);
+static void wait(lcd_t *lcd);
+static void send(lcd_t *lcd, uint8_t cmd, select_t select);
 
-typedef enum select {
-	COMMAND = 0,
-	DATA = 1
-} select_t;
-
-typedef struct lcd {
-	volatile rw_t rw : 1;
-	volatile select_t select : 1;
-	volatile uint8_t data : 4;
-	volatile enable_t enable : 1;
-} lcd_t;
-
+/* commands and data are indicated to be sent on a low pulse on the enable
+ * pin */
 static void
 enable(lcd_t *lcd)
 {
 	lcd->enable = ENABLE;
-	/* delate at least 450ns */
+	/* delay 450ns */
 	lcd->enable = DISABLE;
 }
 
+/* sending commands and data may not be effective if the internal processor is
+ * still busy with the last piece of information sent, therefore it is
+ * necessary to check the busy flag and only send more data once it clears.
+ * doing so has the added benefit of making commands finish quicker. */
 static void
 wait(lcd_t *lcd)
 {
@@ -52,6 +42,8 @@ wait(lcd_t *lcd)
 	memcpy(lcd, &copy, sizeof(lcd_t));
 }
 
+/* this function implements the algorithm necessary to send a command or
+ * write data using only four data pins rather than the typical eight. */
 static void
 send(lcd_t *lcd, uint8_t cmd, select_t select)
 {
@@ -68,6 +60,8 @@ send(lcd_t *lcd, uint8_t cmd, select_t select)
 	wait(lcd);
 }
 
+/* a reset sequence must be run each time the lcd is powered on to enter four
+ * bit operation. */
 void
 reset(lcd_t *lcd)
 {
@@ -75,9 +69,9 @@ reset(lcd_t *lcd)
 	lcd->select = COMMAND;
 	lcd->data = 0x3;
 
+	/* delay 40ms */
 	enable(lcd);
 	/* delay 4.1ms */
-
 	enable(lcd);
 	/* delay 100us */
 
@@ -89,12 +83,13 @@ reset(lcd_t *lcd)
 }
 
 void
-string(lcd_t *lcd, char *str)
+string(lcd_t *lcd, const char *line1, const char *line2)
 {
 	send(lcd, COMMAND, 0x1); /* clear and return to first line */
-	for (int i = 0; str[i] != '\0'; ++i)
-		if (str[i] != '\n')
-			send(lcd, DATA, str[i]);
-		else
-			send(lcd, COMMAND, 0xC0); /* jump to second line */
+	/* both strings limited to sixteen characters */
+	for (uint8_t i = 0; i < 16 && str1[i] != '\0'; ++i)
+		send(lcd, DATA, str1[i]);
+	send(lcd, COMMAND, 0xC0); /* jump to second line */
+	for (uint8_t i = 0; i < 16 && str2[i] != '\0'; ++i)
+		send(lcd, DATA, str2[i]);
 }
