@@ -11,14 +11,29 @@ static void enable(lcd_t *lcd);
 static void wait(lcd_t *lcd);
 static void send(lcd_t *lcd, uint8_t cmd, select_t select);
 
+static void
+write(lcd_t *lcd)
+{
+	WRITE(PIN0, lcd->select);
+	WRITE(PIN1, lcd->rw);
+	WRITE(PIN2, lcd->enable);
+
+	WRITE(PIN4, lcd->data & 0x1);
+	WRITE(PIN5, (lcd->data & 0x2) >> 1);
+	WRITE(PIN6, (lcd->data & 0x4) >> 2);
+	WRITE(PIN7, (lcd->data & 0x8) >> 3);
+}
+
 /* commands and data are indicated to be sent on a low pulse on the enable
  * pin */
 static void
 enable(lcd_t *lcd)
 {
 	lcd->enable = ENABLE;
+	write(lcd);
 	/* delay 450ns */
 	lcd->enable = DISABLE;
+	write(lcd);
 }
 
 /* sending commands and data may not be effective if the internal processor is
@@ -34,6 +49,7 @@ wait(lcd_t *lcd)
 	lcd->rw = READ;
 	lcd->select = COMMAND;
 	lcd->data = 0x8;
+	write(lcd);
 
 	do
 		enable(lcd);
@@ -50,13 +66,15 @@ send(lcd_t *lcd, uint8_t cmd, select_t select)
 	lcd->rw = WRITE;
 	lcd->select = select;
 	lcd->data = (cmd & 0xF0) >> 4;
-
+	write(lcd);
 	enable(lcd);
+
 	wait(lcd);
 
 	lcd->data = (cmd & 0xF);
-
+	write(lcd);
 	enable(lcd);
+
 	wait(lcd);
 }
 
@@ -68,6 +86,7 @@ reset(lcd_t *lcd)
 	lcd->rw = WRITE;
 	lcd->select = COMMAND;
 	lcd->data = 0x3;
+	write(lcd);
 
 	/* delay 40ms */
 	enable(lcd);
