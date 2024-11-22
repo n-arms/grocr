@@ -21,3 +21,5 @@ typedef struct I2C_rx_config
     GPIO_TypeDef *data_gpio;
     uint32_t data_pin;
 } I2C_rx_config;
+
+#endif
