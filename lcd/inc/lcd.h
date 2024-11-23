@@ -27,6 +27,15 @@ typedef enum select {
  * - data -> DB7 DB6 DB5 DB4 (in this order)
  * - enable -> E */
 typedef struct lcd {
+	GPIO_TypeDef *lcd_misc_gpio;
+	uint32_t select_pin;
+	uint32_t rw_pin;
+	uint32_t enable_pin;
+	GPIO_TypeDef *lcd_data_gpio;
+	uint32_t data_pin_1;
+	uint32_t data_pin_2;
+	uint32_t data_pin_3;
+	uint32_t data_pin_4;
         volatile rw_t rw : 1;
         volatile select_t select : 1;
         volatile uint8_t data : 4;

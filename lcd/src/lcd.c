@@ -14,14 +14,21 @@ static void send(lcd_t *lcd, uint8_t cmd, select_t select);
 static void
 write(lcd_t *lcd)
 {
-	WRITE(PIN0, lcd->select);
-	WRITE(PIN1, lcd->rw);
-	WRITE(PIN2, lcd->enable);
+	//WRITE(PIN0, lcd->select);
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->select_pin, lcd->select);
+	//WRITE(PIN1, lcd->rw);
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->rw_pin, lcd->rw);
+	//WRITE(PIN2, lcd->enable);
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->enable_pin, lcd->enable);
 
-	WRITE(PIN4, lcd->data & 0x1);
-	WRITE(PIN5, (lcd->data & 0x2) >> 1);
-	WRITE(PIN6, (lcd->data & 0x4) >> 2);
-	WRITE(PIN7, (lcd->data & 0x8) >> 3);
+	//WRITE(PIN4, lcd->data & 0x1);
+	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_1, lcd->data & 0x1);
+	//WRITE(PIN5, (lcd->data & 0x2) >> 1);
+	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_2, (lcd->data & 0x2) >> 1);
+	//WRITE(PIN6, (lcd->data & 0x4) >> 2);
+	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_3, (lcd->data & 0x4) >> 2);
+	//WRITE(PIN7, (lcd->data & 0x8) >> 3);
+	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_4, (lcd->data & 0x8) >> 3);
 }
 
 /* commands and data are indicated to be sent on a low pulse on the enable
