@@ -1,6 +1,7 @@
 #ifndef __I2C_CONFIG_H
 #define __I2C_CONFIG_H
 
+/* Configuration for an I2C transmitter driver. */
 typedef struct I2C_tx_config
 {
     // GPIO config
@@ -13,6 +14,7 @@ typedef struct I2C_tx_config
     uint64_t millis_per_tick;
 } I2C_tx_config;
 
+/* Configuration for an I2C receiver driver. */
 typedef struct I2C_rx_config
 {
     // GPIO config
