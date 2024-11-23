@@ -91,19 +91,14 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  bool bits_sent[24];
-  memset(bits_sent, 0, sizeof(bits_sent));
-  short currentIndex = 0;
-  bool clkLastTick = 0;
-  uint64_t msSinceLastClkTick = HAL_GetTick();
+  hx711_config config;
+  config.clock_gpio = GPIOB;
+  config.clock_pin = GPIO_PIN_0;
+  config.dout_gpio = GPIOA;
+  config.dout_pin = GPIO_PIN_4;
+  config.timer = tim1;
 
-
-
-while(HAL_GetTick()-msSinceLastClkTick < 500){
-	if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
-		msSinceLastClkTick = HAL_GetTick();
-	}
-}
+  init_hx711_driver(config);
 
   /* USER CODE END 2 */
 
@@ -114,29 +109,9 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET && !clkLastTick){
-		  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET){
-		  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  		  bits_sent[currentIndex] = 1;
-
-		  	  } else {
-		  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-		  		bits_sent[currentIndex] = 0;
-		  	  }
-		  clkLastTick = 1;
-		  msSinceLastClkTick = HAL_GetTick();
-		  ++currentIndex;
-	  }
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_RESET){
-		  clkLastTick = 0;
-	  }
-	  if(currentIndex == 24){
-		  currentIndex = 0;
-	  }
-	  if((HAL_GetTick()-msSinceLastClkTick) >= 500){
-		  currentIndex = 0;
-	  }
-
+	if (poll_hx711_driver(&hx711)) {
+		uint32_t data = get_hx711_driver(&hx711);
+	}
   }
   /* USER CODE END 3 */
 }

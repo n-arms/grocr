@@ -10,7 +10,7 @@ typedef struct hx711_config {
   GPIO_TypeDef *pd_sck_gpio;
   uint32_t pd_sck_pin;
   TIM_HandleTypeDef *timer;
-};
+} hx711_config;
 
 typedef struct hx711_driver {
   hx711_config config;
