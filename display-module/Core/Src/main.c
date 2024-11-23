@@ -119,8 +119,8 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
   config.data_gpio = GPIOC;
   config.data_pin = GPIO_PIN_1;
 
-  bool data[24];
-  I2C_rx_driver driver = new_I2C_rx_driver(config, data, 24, 500);
+  bool data[32];
+  I2C_rx_driver driver = new_I2C_rx_driver(config, data, 32, 500);
 
   /* USER CODE END 2 */
 
@@ -134,12 +134,12 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
 	  tick_I2C_rx_driver(&driver);
 
 	  if (poll_I2C_driver(&driver)) {
-		  memcpy(data, get_I2C_driver(&driver), 24);
+		  memcpy(data, get_I2C_driver(&driver), 32);
 		  reset_I2C_driver(&driver);
 
 		  uint64_t number = 0;
 
-		  for (int i = 0; i < 24; i++) {
+		  for (int i = 0; i < 32; i++) {
 			  number = number * 2 + (data[i] ? 1 : 0);
 		  }
 

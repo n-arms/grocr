@@ -92,10 +92,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  void int24_to_bool(int number, bool arr[24]) {
-      int mask = 1 << 23;
+  void int32_to_bool(int number, bool arr[32]) {
+      int mask = 1 << 31;
 
-      for (int i = 0; i < 24; ++i) {
+      for (int i = 0; i < 32; ++i) {
           arr[i] = (number & mask) != 0;
           mask >>= 1;
       }
@@ -107,11 +107,11 @@ int main(void)
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
   i2c_config.millis_per_tick = 2;
-  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 24);
+  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 32);
 
   uint64_t next_data = HAL_GetTick();
   //bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
-  bool data[24];
+  bool data[32];
   int24_to_bool(696969,data);
   /* USER CODE END 2 */
 
