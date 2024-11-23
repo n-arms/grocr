@@ -65,7 +65,7 @@ dec(uint16_t code)
 		for (uint8_t i = 1; i < 16; ++i)
 			cnt += ((code >> i) & 1);
 		if ((cnt & 1) == (code & 1))
-			return 0; /* two bit error */
+			return (uint16_t)-1; /* two bit error */
 
 		code ^= 1 << shift;
 	}

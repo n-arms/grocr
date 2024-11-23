@@ -25,7 +25,7 @@
  *
  * if the variable is non-zero and the parity bit at bit position zero is
  * accurate, a single bit flip is assumed, otherwise a double bit flip is
- * assumed and zero is returned instead of a corrected value. */
+ * assumed and negative one is returned instead of a corrected value. */
 
 /* hamming encodes an eleven bit value */
 uint16_t enc(uint16_t val);
