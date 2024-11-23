@@ -80,3 +80,22 @@ dec(uint16_t code)
 
 	return val;
 }
+
+ham_t
+enc32(uint32_t val)
+{
+	ham_t ham;
+	ham.msg1 = enc(val & 0x7FF);
+	ham.msg2 = enc((val >> 11) & 0x7FF);
+	ham.msg3 = enc((val >> 22) & 0x7FF);
+	return ham;
+}
+
+uint32_t
+dec32(ham_t ham)
+{
+	uint32_t val = dec(ham.msg1);
+	val |= dec(ham.msg2) << 11;
+	val |= dec(ham.msg3) << 22;
+	return val;
+}
