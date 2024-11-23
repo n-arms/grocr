@@ -17,7 +17,7 @@ pow2(int val)
 }
 
 uint16_t
-enc(uint16_t val) /* val >> 11 == 0 */
+ham_enc(uint16_t val) /* val >> 11 == 0 */
 {
 	uint16_t code = 0;
 
@@ -47,7 +47,7 @@ enc(uint16_t val) /* val >> 11 == 0 */
 }
 
 uint16_t
-dec(uint16_t code)
+ham_dec(uint16_t code)
 {
 	uint8_t shift = 0;
 	for (uint8_t i = 1; i <= 8; i *= 2) {
@@ -82,20 +82,20 @@ dec(uint16_t code)
 }
 
 ham_t
-enc32(uint32_t val)
+ham_enc32(uint32_t val)
 {
 	ham_t ham;
-	ham.msg1 = enc(val & 0x7FF);
-	ham.msg2 = enc((val >> 11) & 0x7FF);
-	ham.msg3 = enc((val >> 22) & 0x7FF);
+	ham.msg1 = ham_enc(val & 0x7FF);
+	ham.msg2 = ham_enc((val >> 11) & 0x7FF);
+	ham.msg3 = ham_enc((val >> 22) & 0x7FF);
 	return ham;
 }
 
 uint32_t
-dec32(ham_t ham)
+ham_dec32(ham_t ham)
 {
-	uint32_t val = dec(ham.msg1);
-	val |= dec(ham.msg2) << 11;
-	val |= dec(ham.msg3) << 22;
+	uint32_t val = ham_dec(ham.msg1);
+	val |= ham_dec(ham.msg2) << 11;
+	val |= ham_dec(ham.msg3) << 22;
 	return val;
 }
