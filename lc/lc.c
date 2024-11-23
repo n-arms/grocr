@@ -7,62 +7,51 @@ void init_hx711_driver(hx711_config config) {
   hx711.config = config;
   hx711.data = hx711_data;
   hx711.current_index = 0;
-  hx711.clock_high = false;
-  hx711.has_data = false;
+  hx711.is_new = false;
 }
+
 bool poll_hx711_driver(hx711_driver *driver) {
-  return driver -> has_data;
+  return driver -> is_new;
 }
+
 uint32_t get_hx711_driver(hx711_driver *driver) {
-  return 0;
+	driver -> is_new = false;
+	uint32_t number = 0;
+
+	for (int i = 0; i < 27; i++) {
+		number = number * 2 + driver -> data[i];
+	}
+
+	return number;
 }
 
-void push_bit_hx711_driver(hx711_driver *driver, bool bit) {
-  driver -> data[driver -> current_index++] = bit;
-}
-
-/*
-// NOTE: This function overloads a __weak function defined in the HAL.
-// Don't change its name.
-// remember to disable this interrupt while the transfer is happening
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  // check that the interrupt was caused by the `dout` pin
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
   if (GPIO_Pin == hx711.config.dout_pin) {
-    // block for at least 1 clock cycle (125 ns) to allow for the first clock cycle
-    __NOP();
-
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == GPIO_PIN_SET) {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-    }
-    hx711.has_data = false;
-    // start the timer
-    HAL_TIM_Base_Start(hx711.config.timer);
-
+	  HAL_TIM_Base_Start_IT(hx711.config.timer);
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	  hx711.is_new = false;
   }
 }
-*/
-/*
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-  if (hx711.clock_high) {
-    // if the clock was high last tick, set the clock low, push data to buffer
-    HAL_GPIO_WritePin(hx711.config.pd_sck_gpio, hx711.config.pd_sck_pin, GPIO_PIN_RESET);
+	HAL_GPIO_TogglePin(hx711.config.pd_sck_gpio, hx711.config.pd_sck_pin);
+	int tick = ++hx711.current_index;
+	if (tick % 2 == 1) {
+		hx711.data[tick / 2] = HAL_GPIO_ReadPin(hx711.config.dout_gpio, hx711.config.dout_pin) == GPIO_PIN_SET;
+	}
+	if (tick == 27*2) {
+		hx711.current_index = 0;
+		HAL_TIM_Base_Stop_IT(hx711.config.timer);
+		bool localData[27];
+		memcpy(localData, hx711.data, 27 * sizeof(bool));
+		__NOP();
+		int number = 0;
 
-    bool bit = HAL_GPIO_ReadPin(hx711.config.dout_gpio, hx711.config.dout_pin) == GPIO_PIN_SET;
-    push_bit_hx711_driver(&hx711, bit);
-    
-    hx711.clock_high = false;
-
-    if (hx711.current_index == 27) {
-      HAL_TIM_Base_Stop(hx711.config.timer);
-      hx711.has_data = true;
-    }
-  } else {
-    // if the clock was low last tick, set the clock high
-    HAL_GPIO_WritePin(hx711.config.pd_sck_gpio, hx711.config.pd_sck_pin, GPIO_PIN_SET);
-
-    hx711.clock_high = true;
-  }
+		for (int i = 0; i < 27; i++) {
+			number = number * 2 + localData[i];
+		}
+		hx711.is_new = true;
+		__NOP();
+	}
 }
-*/

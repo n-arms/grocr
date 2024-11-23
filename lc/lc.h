@@ -3,6 +3,7 @@
 
 #include "stm32f4xx_hal.h"
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct hx711_config {
   GPIO_TypeDef *dout_gpio;
@@ -16,8 +17,7 @@ typedef struct hx711_driver {
   hx711_config config;
   bool * volatile data;
   volatile uint32_t current_index;
-  volatile bool clock_high;
-  volatile bool has_data;
+  bool is_new;
 } hx711_driver;
 
 // should be the only instance of hx711_driver,

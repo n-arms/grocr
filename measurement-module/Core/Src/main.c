@@ -23,7 +23,6 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include "lc.h"
-#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -63,41 +62,6 @@ static void MX_TIM1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-#define CLK_PIN GPIO_PIN_0
-#define DATA_PIN GPIO_PIN_1
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  if (GPIO_Pin == GPIO_PIN_4) {
-	  HAL_TIM_Base_Start_IT(&htim1);
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-  }
-}
-
-volatile int ticks = 0;
-volatile bool volatile data[27];
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-	int tick = ++ticks;
-	if (tick % 2 == 1) {
-		data[tick / 2] = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET;
-	}
-	if (tick == 27*2) {
-		ticks = 0;
-		HAL_TIM_Base_Stop_IT(&htim1);
-		bool localData[27];
-		memcpy(localData, data, 27 * sizeof(bool));
-		__NOP();
-		int number = 0;
-
-		for (int i = 0; i < 27; i++) {
-			number = number * 2 + localData[i];
-		}
-		__NOP();
-	}
-}
 /* USER CODE END 0 */
 
 /**
@@ -132,7 +96,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  /*
+
   hx711_config config;
   config.pd_sck_gpio = GPIOB;
   config.pd_sck_pin = GPIO_PIN_0;
@@ -141,7 +105,6 @@ int main(void)
   config.timer = &htim1;
 
   init_hx711_driver(config);
-  */
 
 
   /* USER CODE END 2 */
@@ -154,11 +117,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-/*
     if (poll_hx711_driver(&hx711)) {
       uint32_t data = get_hx711_driver(&hx711);
+      __NOP();
     }
-    */
   }
   /* USER CODE END 3 */
 }
