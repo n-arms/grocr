@@ -36,11 +36,15 @@ lcd_write(lcd_t *lcd)
 static void
 lcd_enable(lcd_t *lcd)
 {
-	lcd->enable = LCD_ENABLE;
-	lcd_write(lcd);
-	/* delay 450ns */
 	lcd->enable = LCD_DISABLE;
 	lcd_write(lcd);
+	/* delay >450ns */
+	lcd->enable = LCD_ENABLE;
+	lcd_write(lcd);
+	/* delay >450ns */
+	lcd->enable = LCD_DISABLE;
+	lcd_write(lcd);
+	/* delay >37us */ //let command settle
 }
 
 /* sending commands and data may not be effective if the internal processor is
@@ -55,7 +59,7 @@ lcd_wait(lcd_t *lcd)
 
 	lcd->rw = READ;
 	lcd->select = COMMAND;
-	lcd->data = 0x8;
+	lcd->data = 0x08;
 	lcd_write(lcd);
 
 	do
@@ -78,7 +82,7 @@ lcd_send(lcd_t *lcd, uint8_t cmd, select_t select)
 
 	lcd_wait(lcd);
 
-	lcd->data = (cmd & 0xF);
+	lcd->data = (cmd & 0x0F);
 	lcd_write(lcd);
 	lcd_enable(lcd);
 
@@ -101,15 +105,15 @@ void lcd_reset(lcd_t *lcd)
 	/* delay 100us */
 
 	lcd_send(lcd, COMMAND, 0x2C); /* four bit input, two lines, 5x10 font */
-	lcd_send(lcd, COMMAND, 0x8);  /* display off */
-	lcd_send(lcd, COMMAND, 0x1);  /* clear and return to first line */
-	lcd_send(lcd, COMMAND, 0x7);  /* shift right after char input */
-	lcd_send(lcd, COMMAND, 0xC);  /* display on, cursor off */
+	lcd_send(lcd, COMMAND, 0x08);  /* display off */
+	lcd_send(lcd, COMMAND, 0x01);  /* clear and return to first line */
+	lcd_send(lcd, COMMAND, 0x06);  /* shift right after char input */
+	lcd_send(lcd, COMMAND, 0x0C);  /* display on, cursor off */
 }
 
 void lcd_string(lcd_t *lcd, const char *line1, const char *line2)
 {
-	lcd_send(lcd, COMMAND, 0x1); /* clear and return to first line */
+	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
 	/* both strings limited to sixteen characters */
 	for (uint8_t i = 0; i < 16 && line1[i] != '\0'; ++i)
 		lcd_send(lcd, DATA, line1[i]);
