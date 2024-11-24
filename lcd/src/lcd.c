@@ -7,9 +7,22 @@
 
 #include "lcd.h"
 
+
 static void enable(lcd_t *lcd);
 static void wait(lcd_t *lcd);
 static void send(lcd_t *lcd, uint8_t cmd, select_t select);
+
+// at most 999 us
+void delay_us(lcd_t *lcd, uint32_t us) {
+	HAL_TIM_Base_Start(lcd -> timer);
+
+	// counter value at the end of the delay
+	uint32_t max_counter = 44999 * us / 1000;
+
+	while (__HAL_TIM_GET_COUNTER(lcd -> timer) < max_counter);
+
+	HAL_TIM_Base_Stop(lcd -> timer);
+}
 
 static void
 write(lcd_t *lcd)

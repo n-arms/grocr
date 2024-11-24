@@ -2,6 +2,8 @@
  * Copyright (C) 2024 Olive Hudson <whudson@uwaterloo.ca>
  * see LICENCE file for licensing information */
 
+#include "stm32f4xx_hal.h"
+
 #ifndef LCD_H
 #define LCD_H
 
@@ -36,6 +38,7 @@ typedef struct lcd {
 	uint32_t data_pin_2;
 	uint32_t data_pin_3;
 	uint32_t data_pin_4;
+	TIM_HandleTypeDef *timer;
         volatile rw_t rw : 1;
         volatile select_t select : 1;
         volatile uint8_t data : 4;

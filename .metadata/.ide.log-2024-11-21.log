@@ -1,0 +1,36 @@
+2024-11-22 00:04:19,997 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 299794288 Bytes (497025024)
+2024-11-22 00:04:21,457 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 317485776 Bytes (497025024)
+2024-11-22 00:04:26,499 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 199807496 Bytes (497025024)
+2024-11-22 00:04:28,670 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: NVIC
+2024-11-22 00:04:28,670 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: USART
+2024-11-22 00:04:28,670 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: SYS
+2024-11-22 00:04:28,671 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: GPIO
+2024-11-22 00:04:28,671 [INFO] BlockDiagram:2766 - set Specific Code input for plugin: RCC
+2024-11-22 00:04:28,672 [INFO] CodeGenerator:807 - code generatio: config db path: C:\ST\STM32CubeIDE_1.16.0\STM32CubeIDE\plugins\com.st.stm32cube.common.mx_6.12.1.202409122256\\db\
+2024-11-22 00:04:28,914 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\license.tmp_save
+2024-11-22 00:04:29,742 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\license.tmp
+2024-11-22 00:04:29,842 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\gpio.tmp_save
+2024-11-22 00:04:30,032 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\gpio.tmp
+2024-11-22 00:04:30,226 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\stm32f4xx_it.c_save
+2024-11-22 00:04:30,408 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\stm32f4xx_it.c
+2024-11-22 00:04:30,438 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\stm32f4xx_it.h_save
+2024-11-22 00:04:30,527 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\stm32f4xx_it.h
+2024-11-22 00:04:30,632 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\stm32f4xx_hal_msp.c_save
+2024-11-22 00:04:30,827 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\stm32f4xx_hal_msp.c
+2024-11-22 00:04:30,842 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\system.tmp_save
+2024-11-22 00:04:30,936 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\MXTmpFiles\system.tmp
+2024-11-22 00:04:30,975 [INFO] CodeEngine:311 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\stm32f4xx_hal_conf.h_save
+2024-11-22 00:04:31,101 [INFO] CodeEngine:335 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\stm32f4xx_hal_conf.h
+2024-11-22 00:04:31,189 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\main.h_save
+2024-11-22 00:04:31,328 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Inc\main.h
+2024-11-22 00:04:31,358 [INFO] CodeEngine:255 - oldGeneratedFile, C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\main.c_save
+2024-11-22 00:04:31,550 [INFO] CodeEngine:279 - Generated code: C:\Users\north\Documents\code\cpp\grocr\measurement-module\Core\Src\main.c
+2024-11-22 00:04:32,038 [INFO] ProjectBuilder:3249 - Time for Copy HAL[1] : 298mS.
+2024-11-22 00:04:32,045 [INFO] ProjectBuilder:4828 - Project Generator version: 4.5.0-B34
+2024-11-22 00:04:32,129 [INFO] ConfigFileManager:1531 - The Die is : DIE433
+2024-11-22 00:04:32,172 [INFO] ApiDbMcu:508 - Load IP Config File for FATFS
+2024-11-22 00:04:32,210 [INFO] ApiDbMcu:508 - Load IP Config File for FREERTOS
+2024-11-22 00:04:32,224 [INFO] ApiDbMcu:508 - Load IP Config File for LIBJPEG
+2024-11-22 00:04:32,270 [INFO] ApiDbMcu:508 - Load IP Config File for MBEDTLS
+2024-11-22 00:04:32,312 [INFO] ApiDbMcu:508 - Load IP Config File for USB_DEVICE
+2024-11-22 00:04:32,341 [INFO] ApiDbMcu:508 - Load IP Config File for USB_HOST
