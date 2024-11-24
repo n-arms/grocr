@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include "lcd.c"
 
 /* USER CODE END Includes */
 
@@ -93,12 +94,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  bool data[24] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
-  int currentIndex = 0;
-  int dataLength = 24;
 
-  uint64_t next_tick = HAL_GetTick();
-  bool clockHigh = false;
+
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,24 +107,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (HAL_GetTick() > next_tick) {
-	  		if (clockHigh) {
-	  			clockHigh = false;
-	  			HAL_GPIO_WritePin(GPIOC, CLK_PIN, GPIO_PIN_RESET);
-	  			next_tick += 50;
-	  		} else {
-	  			HAL_GPIO_WritePin(GPIOC, DATA_PIN, (data[currentIndex]) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-	  			currentIndex += 1;
-	  			HAL_GPIO_WritePin(GPIOC, CLK_PIN, GPIO_PIN_SET);
-	  			clockHigh = true;
-	  			next_tick += 50;
 
-	  			if (currentIndex == 24) {
-	  				next_tick += 1000;
-	  				currentIndex = 0;
-	  			}
-	  		}
-	  	}
   }
   /* USER CODE END 3 */
 }
