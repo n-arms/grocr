@@ -72,7 +72,7 @@ lcd_wait(lcd_t *lcd)
 /* this function implements the algorithm necessary to send a command or
  * write data using only four data pins rather than the typical eight. */
 static void
-lcd_send(lcd_t *lcd, uint8_t cmd, select_t select)
+lcd_send(lcd_t *lcd, select_t select, uint8_t cmd)
 {
 	lcd->rw = WRITE;
 	lcd->select = select;
