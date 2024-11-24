@@ -5,7 +5,7 @@
 #include "lsr.h"
 
 float
-lsr_root(float *x, float *y, int len)
+lsr_root(uint32_t *x, uint32_t *y, int len)
 {
 	float sx = 0, sx2 = 0, sy = 0, sxy = 0; /* sums */
 	for (int i = 0; i < len; ++i) {
