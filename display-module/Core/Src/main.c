@@ -97,23 +97,21 @@ int main(void)
 
 	lcd_t lcd_config;
 	lcd_config.lcd_misc_gpio = GPIOA;
-	lcd_config.select_pin = GPIO_PIN_3;
-	lcd_config.rw_pin = GPIO_PIN_2;
-	lcd_config.enable_pin = GPIO_PIN_10;
+	lcd_config.select_pin = GPIO_PIN_10;
+	lcd_config.enable_pin = GPIO_PIN_6;
 	lcd_config.lcd_data_gpio = GPIOB;
 	lcd_config.data_pin_1 = GPIO_PIN_3;
 	lcd_config.data_pin_2 = GPIO_PIN_5;
 	lcd_config.data_pin_3 = GPIO_PIN_4;
 	lcd_config.data_pin_4 = GPIO_PIN_10;
-	lcd_config.rw = 0;
 	lcd_config.select = 0;
 	lcd_config.data = 0;
-	lcd_config.enable = 0;
-	lcd_config.timer = &htim3;
+
+
 
 	HAL_Delay(50);
 	lcd_reset(&lcd_config);
-	lcd_string(&lcd_config, "","");
+	lcd_string(&lcd_config, "Hello,", "World!");
 
 
 
@@ -127,7 +125,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  lcd_string(&lcd_config, "hhhhhhhhhhhhhhhh","wwwwwwwwwwwwwwww");
   }
   /* USER CODE END 3 */
 }
@@ -241,7 +238,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, D1_Pin|D0_Pin|LD2_Pin|D2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, D1_Pin|BROKEN_Pin|LD2_Pin|GPIO_PIN_6
+                          |D2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, D6_Pin|D3_Pin|D5_Pin|D4_Pin, GPIO_PIN_RESET);
@@ -258,8 +256,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : D1_Pin D0_Pin LD2_Pin D2_Pin */
-  GPIO_InitStruct.Pin = D1_Pin|D0_Pin|LD2_Pin|D2_Pin;
+  /*Configure GPIO pins : D1_Pin BROKEN_Pin LD2_Pin PA6
+                           D2_Pin */
+  GPIO_InitStruct.Pin = D1_Pin|BROKEN_Pin|LD2_Pin|GPIO_PIN_6
+                          |D2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

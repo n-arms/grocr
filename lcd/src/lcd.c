@@ -8,32 +8,13 @@
 #include "lcd.h"
 
 static void lcd_enable(lcd_t *lcd);
-static void lcd_wait(lcd_t *lcd);
 static void lcd_send(lcd_t *lcd, uint8_t cmd, select_t select);
-
-// at most 999 us
-void delay_us(lcd_t *lcd, uint32_t us)
-{
-	HAL_TIM_Base_Start(lcd->timer);
-
-	// counter value at the end of the delay
-	uint32_t max_counter = 41999 * us / 1000;
-
-	while (__HAL_TIM_GET_COUNTER(lcd->timer) < max_counter)
-		;
-
-	HAL_TIM_Base_Stop(lcd->timer);
-}
 
 static void
 lcd_write(lcd_t *lcd)
 {
 	// WRITE(PIN0, lcd->select);
 	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->select_pin, lcd->select);
-	// WRITE(PIN1, lcd->rw);
-	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->rw_pin, lcd->rw);
-	// WRITE(PIN2, lcd->enable);
-	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->enable_pin, lcd->enable);
 
 	// WRITE(PIN4, lcd->data & 0x1);
 	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_1, lcd->data & 0x1);
@@ -50,37 +31,10 @@ lcd_write(lcd_t *lcd)
 static void
 lcd_enable(lcd_t *lcd)
 {
-	lcd->enable = LCD_DISABLE;
-	lcd_write(lcd);
-	delay_us(lcd, 1);
-	lcd->enable = LCD_ENABLE;
-	lcd_write(lcd);
-	delay_us(lcd, 1);
-	lcd->enable = LCD_DISABLE;
-	lcd_write(lcd);
-	delay_us(lcd, 40); // let command settle
-}
-
-/* sending commands and data may not be effective if the internal processor is
- * still busy with the last piece of information sent, therefore it is
- * necessary to check the busy flag and only send more data once it clears.
- * doing so has the added benefit of making commands finish quicker. */
-static void
-lcd_wait(lcd_t *lcd)
-{
-	lcd_t copy;
-	memcpy(&copy, lcd, sizeof(lcd_t));
-
-	lcd->rw = READ;
-	lcd->select = COMMAND;
-	lcd->data = 0x08;
-	lcd_write(lcd);
-
-	do
-		lcd_enable(lcd);
-	while ((lcd->data & 0x8) == 0x8);
-
-	memcpy(lcd, &copy, sizeof(lcd_t));
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->enable_pin, GPIO_PIN_SET);
+	HAL_Delay(1);
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->enable_pin, GPIO_PIN_RESET);
+	HAL_Delay(1);
 }
 
 /* this function implements the algorithm necessary to send a command or
@@ -88,41 +42,41 @@ lcd_wait(lcd_t *lcd)
 static void
 lcd_send(lcd_t *lcd, select_t select, uint8_t cmd)
 {
-	lcd->rw = WRITE;
 	lcd->select = select;
 	lcd->data = (cmd & 0xF0) >> 4;
 	lcd_write(lcd);
 	lcd_enable(lcd);
 
-	lcd_wait(lcd);
-
 	lcd->data = (cmd & 0x0F);
 	lcd_write(lcd);
 	lcd_enable(lcd);
-
-	lcd_wait(lcd);
 }
 
 /* a reset sequence must be run each time the lcd is powered on to enter four
  * bit operation. */
 void lcd_reset(lcd_t *lcd)
 {
-	lcd->rw = WRITE;
 	lcd->select = COMMAND;
 	lcd->data = 0x3;
 	lcd_write(lcd);
 
-	HAL_Delay(40);
+	HAL_Delay(15);
 	lcd_enable(lcd);
 	HAL_Delay(5);
 	lcd_enable(lcd);
-	delay_us(lcd, 100);
+	HAL_Delay(1);
+	lcd_enable(lcd);
 
-	lcd_send(lcd, COMMAND, 0x2C); /* four bit input, two lines, 5x10 font */
+	lcd->data = 0x2;
+	lcd_write(lcd);
+	lcd_enable(lcd);
+
+	lcd_send(lcd, COMMAND, 0x28); /* four bit input, two lines, 5x10 font */
 	lcd_send(lcd, COMMAND, 0x08); /* display off */
 	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
+	HAL_Delay(5);
 	lcd_send(lcd, COMMAND, 0x06); /* shift right after char input */
-	lcd_send(lcd, COMMAND, 0x0C); /* display on, cursor off */
+	lcd_send(lcd, COMMAND, 0x0C); /* display on, cursor on */
 }
 
 void lcd_string(lcd_t *lcd, const char *line1, const char *line2)

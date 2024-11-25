@@ -65,8 +65,8 @@ void Error_Handler(void);
 #define DATA__GPIO_Port GPIOC
 #define D1_Pin GPIO_PIN_2
 #define D1_GPIO_Port GPIOA
-#define D0_Pin GPIO_PIN_3
-#define D0_GPIO_Port GPIOA
+#define BROKEN_Pin GPIO_PIN_3
+#define BROKEN_GPIO_Port GPIOA
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
 #define D6_Pin GPIO_PIN_10
