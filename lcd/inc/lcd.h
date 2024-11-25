@@ -56,4 +56,6 @@ void lcd_reset(lcd_t *lcd);
 /* resets lines of text on lcd */
 void lcd_string(lcd_t *lcd, const char *line1, const char *line2);
 
+void delay_us(lcd_t *lcd, uint32_t us);
+
 #endif /* LCD_H */

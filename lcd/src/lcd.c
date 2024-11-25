@@ -16,7 +16,7 @@ void delay_us(lcd_t *lcd, uint32_t us) {
 	HAL_TIM_Base_Start(lcd -> timer);
 
 	// counter value at the end of the delay
-	uint32_t max_counter = 44999 * us / 1000;
+	uint32_t max_counter = 41999 * us / 1000;
 
 	while (__HAL_TIM_GET_COUNTER(lcd -> timer) < max_counter);
 
