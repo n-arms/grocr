@@ -94,21 +94,26 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
-	lcd_t config;
-	config.lcd_misc_gpio = GPIOA;
-	config.select_pin = GPIO_PIN_3;
-	config.rw_pin = GPIO_PIN_2;
-	config.enable_pin = GPIO_PIN_10;
-	config.lcd_data_gpio = GPIOB;
-	config.data_pin_1 = GPIO_PIN_3;
-	config.data_pin_2 = GPIO_PIN_5;
-	config.data_pin_3 = GPIO_PIN_4;
-	config.data_pin_4 = GPIO_PIN_10;
-	config.rw = 0;
-	config.select = 0;
-	config.data = 0;
-	config.enable = 0;
-	config.timer = &htim3;
+
+	lcd_t lcd_config;
+	lcd_config.lcd_misc_gpio = GPIOA;
+	lcd_config.select_pin = GPIO_PIN_3;
+	lcd_config.rw_pin = GPIO_PIN_2;
+	lcd_config.enable_pin = GPIO_PIN_10;
+	lcd_config.lcd_data_gpio = GPIOB;
+	lcd_config.data_pin_1 = GPIO_PIN_3;
+	lcd_config.data_pin_2 = GPIO_PIN_5;
+	lcd_config.data_pin_3 = GPIO_PIN_4;
+	lcd_config.data_pin_4 = GPIO_PIN_10;
+	lcd_config.rw = 0;
+	lcd_config.select = 0;
+	lcd_config.data = 0;
+	lcd_config.enable = 0;
+	lcd_config.timer = &htim3;
+
+	HAL_Delay(50);
+	lcd_reset(&lcd_config);
+	lcd_string(&lcd_config, "","");
 
 
 
@@ -121,11 +126,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  for (int i = 0; i < 1000; i++) {
-		delay_us(&config, 999);
-	  }
 
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	  lcd_string(&lcd_config, "hhhhhhhhhhhhhhhh","wwwwwwwwwwwwwwww");
   }
   /* USER CODE END 3 */
 }
