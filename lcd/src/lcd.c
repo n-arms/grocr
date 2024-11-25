@@ -12,15 +12,17 @@ static void lcd_wait(lcd_t *lcd);
 static void lcd_send(lcd_t *lcd, uint8_t cmd, select_t select);
 
 // at most 999 us
-void delay_us(lcd_t *lcd, uint32_t us) {
-	HAL_TIM_Base_Start(lcd -> timer);
+void delay_us(lcd_t *lcd, uint32_t us)
+{
+	HAL_TIM_Base_Start(lcd->timer);
 
 	// counter value at the end of the delay
 	uint32_t max_counter = 41999 * us / 1000;
 
-	while (__HAL_TIM_GET_COUNTER(lcd -> timer) < max_counter);
+	while (__HAL_TIM_GET_COUNTER(lcd->timer) < max_counter)
+		;
 
-	HAL_TIM_Base_Stop(lcd -> timer);
+	HAL_TIM_Base_Stop(lcd->timer);
 }
 
 static void
@@ -50,13 +52,13 @@ lcd_enable(lcd_t *lcd)
 {
 	lcd->enable = LCD_DISABLE;
 	lcd_write(lcd);
-	/* delay >450ns */
+	delay_us(lcd, 1);
 	lcd->enable = LCD_ENABLE;
 	lcd_write(lcd);
-	/* delay >450ns */
+	delay_us(lcd, 1);
 	lcd->enable = LCD_DISABLE;
 	lcd_write(lcd);
-	/* delay >37us */ //let command settle
+	delay_us(lcd, 40); // let command settle
 }
 
 /* sending commands and data may not be effective if the internal processor is
@@ -110,17 +112,17 @@ void lcd_reset(lcd_t *lcd)
 	lcd->data = 0x3;
 	lcd_write(lcd);
 
-	/* delay 40ms */
+	HAL_Delay(40);
 	lcd_enable(lcd);
-	/* delay 4.1ms */
+	HAL_Delay(5);
 	lcd_enable(lcd);
-	/* delay 100us */
+	delay_us(lcd, 100);
 
 	lcd_send(lcd, COMMAND, 0x2C); /* four bit input, two lines, 5x10 font */
-	lcd_send(lcd, COMMAND, 0x08);  /* display off */
-	lcd_send(lcd, COMMAND, 0x01);  /* clear and return to first line */
-	lcd_send(lcd, COMMAND, 0x06);  /* shift right after char input */
-	lcd_send(lcd, COMMAND, 0x0C);  /* display on, cursor off */
+	lcd_send(lcd, COMMAND, 0x08); /* display off */
+	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
+	lcd_send(lcd, COMMAND, 0x06); /* shift right after char input */
+	lcd_send(lcd, COMMAND, 0x0C); /* display on, cursor off */
 }
 
 void lcd_string(lcd_t *lcd, const char *line1, const char *line2)
