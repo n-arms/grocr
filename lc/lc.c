@@ -53,6 +53,9 @@ lc_get(void)
 	return lc.data;
 }
 
+/* this callback starts the hardware timer and resets the data whenever a
+ * falling edge is received on the data pin (the callback runs whenever an edge
+ * is triggered on any active gpio input */
 void
 HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -60,10 +63,15 @@ HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		return;
 	HAL_TIM_Base_Start_IT(lc.timer);
 	if (lc.new)
-		lc.data = 0;
+		lc.data = lc.index = 0;
 	lc.new = false;
 }
 
+/* this callback is triggered whenever the hardware timer set by the other
+ * callback elapses.  it increments the clock pin to indicate to the load cell
+ * to send another bit.  the bits are shifted into the data variable until all
+ * 27 bits are received, at which point the timer is stopped and the data is
+ * deemed fresh */
 void
 HAL_TIM_Period_ElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -74,7 +82,6 @@ HAL_TIM_Period_ElapsedCallback(TIM_HandleTypeDef *htim)
 
 	if (lc.index == 27 * 2) {
 		HAL_TIM_Base_Stop_IT(lc.timer);
-		lc.index = 0;
 		lc.new = true;
 	}
 }
