@@ -27,17 +27,9 @@
  * accurate, a single bit flip is assumed.  otherwise, a double bit flip is
  * assumed and negative one is returned instead of a corrected value. */
 
-typedef struct ham {
-	uint16_t msg1, msg2, msg3;
-} ham_t;
-
 /* hamming encodes an eleven bit value */
 uint16_t ham_enc(uint16_t val);
 /* hamming decodes an eleven bit value */
 uint16_t ham_dec(uint16_t val);
-/* hamming encodes a thirty-two bit value */
-ham_t ham_enc32(uint32_t val);
-/* hamming decodes a thirty-two bit value */
-uint32_t ham_dec32(ham_t ham);
 
 #endif /* HAM_H */

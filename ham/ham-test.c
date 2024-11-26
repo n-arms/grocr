@@ -48,9 +48,4 @@ main(void)
 			bin(num), bin(encoded), bin(encoded ^ 1);
 
 	printf("FEDCBA9876543210\n");
-
-	uint32_t val = rand();
-	ham_t ham = ham_enc32(val);
-	if (val != ham_dec32(ham))
-		printf("ham32 encoding failed!\n");
 }
