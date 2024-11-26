@@ -100,14 +100,13 @@ int main(void)
 	lcd.gpio_data = GPIOB;
 	lcd.pin_select = GPIO_PIN_10;
 	lcd.pin_enable = GPIO_PIN_6;
-	lcd.data1 = GPIO_PIN_3;
-	lcd.data2 = GPIO_PIN_5;
-	lcd.data3 = GPIO_PIN_4;
-	lcd.data4 = GPIO_PIN_10;
+	lcd.pin1 = GPIO_PIN_3;
+	lcd.pin2 = GPIO_PIN_5;
+	lcd.pin3 = GPIO_PIN_4;
+	lcd.pin4 = GPIO_PIN_10;
 
 	lcd_reset(&lcd);
-	lcd_string(&lcdg, "Hello,", "World!");
-
+	lcd_string(&lcd, "Goodbye,", "World!");
 
 
   /* USER CODE END 2 */
