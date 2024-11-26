@@ -137,6 +137,7 @@ int main(void)
 	uint32_t index = 0;
 	uint32_t time_data[500];
 	float lc_data[500];
+	uint32_t root_tick = 0;
 
   /* USER CODE END 2 */
 
@@ -182,9 +183,25 @@ int main(void)
 		time_data[index] = HAL_GetTick() - t0;
 		++index;
 
-		char lcd_out[16];
-		snprintf(lcd_out, 16, "Weight: %.fg", lc_data[index - 1]);
-		lcd_str(&lcd, lcd_out, "");
+		root_tick = lsr_root(time_data, lc_data, index);
+		int32_t sec_remain = (root_tick-HAL_GetTick())/1000;
+		char lcd_ln1[16];
+
+		if(sec_remain < 0)
+			snprintf(lcd_ln1, 16, "Est. time: NOW!");
+        else if(sec_remain < 60)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain," s");
+        else if(sec_remain < 3600)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/60," m");
+        else if(sec_remain < 86400)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/3600," h");
+        else
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/86400," d");
+
+
+		char lcd_ln2[16];
+		snprintf(lcd_ln2, 16, "Weight: %.fg", lc_data[index - 1]);
+		lcd_str(&lcd, lcd_ln1, lcd_ln2);
 		HAL_Delay(5000);
 	}
   /* USER CODE END 3 */
