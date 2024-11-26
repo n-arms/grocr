@@ -95,23 +95,18 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-	lcd_t lcd_config;
-	lcd_config.lcd_misc_gpio = GPIOA;
-	lcd_config.select_pin = GPIO_PIN_10;
-	lcd_config.enable_pin = GPIO_PIN_6;
-	lcd_config.lcd_data_gpio = GPIOB;
-	lcd_config.data_pin_1 = GPIO_PIN_3;
-	lcd_config.data_pin_2 = GPIO_PIN_5;
-	lcd_config.data_pin_3 = GPIO_PIN_4;
-	lcd_config.data_pin_4 = GPIO_PIN_10;
-	lcd_config.select = 0;
-	lcd_config.data = 0;
+	lcd_t lcd;
+	lcd.gpio_etc = GPIOA;
+	lcd.gpio_data = GPIOB;
+	lcd.pin_select = GPIO_PIN_10;
+	lcd.pin_enable = GPIO_PIN_6;
+	lcd.data1 = GPIO_PIN_3;
+	lcd.data2 = GPIO_PIN_5;
+	lcd.data3 = GPIO_PIN_4;
+	lcd.data4 = GPIO_PIN_10;
 
-
-
-	HAL_Delay(50);
-	lcd_reset(&lcd_config);
-	lcd_string(&lcd_config, "Hello,", "World!");
+	lcd_reset(&lcd);
+	lcd_string(&lcdg, "Hello,", "World!");
 
 
 
