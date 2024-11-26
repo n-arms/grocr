@@ -29,7 +29,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == hx711.config.dout_pin) {
 	  HAL_TIM_Base_Start_IT(hx711.config.timer);
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	  hx711.is_new = false;
   }
 }
