@@ -7,27 +7,25 @@
 
 #include "lcd.h"
 
+typedef enum select {
+	COMMAND = 0,
+	DATA = 1
+};
+
+static void lcd_write(select_t select, uint8_t data);
 static void lcd_enable(lcd_t *lcd);
 static void lcd_send(lcd_t *lcd, uint8_t cmd, select_t select);
 
 static void
-lcd_write(lcd_t *lcd)
+lcd_write(lcd_t *lcd, select_t select, uint8_t data)
 {
-	// WRITE(PIN0, lcd->select);
-	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->select_pin, lcd->select);
-
-	// WRITE(PIN4, lcd->data & 0x1);
-	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_1, lcd->data & 0x1);
-	// WRITE(PIN5, (lcd->data & 0x2) >> 1);
-	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_2, (lcd->data & 0x2) >> 1);
-	// WRITE(PIN6, (lcd->data & 0x4) >> 2);
-	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_3, (lcd->data & 0x4) >> 2);
-	// WRITE(PIN7, (lcd->data & 0x8) >> 3);
-	HAL_GPIO_WritePin(lcd->lcd_data_gpio, lcd->data_pin_4, (lcd->data & 0x8) >> 3);
+	HAL_GPIO_WritePin(lcd->lcd_misc_gpio, lcd->select_pin, select);
+	HAL_GPIO_WritePin(lcd->gpio_data, lcd->data1, data & 1);
+	HAL_GPIO_WritePin(lcd->gpio_data, lcd->data2, (data >> 1) & 1);
+	HAL_GPIO_WritePin(lcd->gpio_data, lcd->data3, (data >> 2) & 1);
+	HAL_GPIO_WritePin(lcd->gpio_data, lcd->data4, (data >> 3) & 1);
 }
 
-/* commands and data are indicated to be sent on a low pulse on the enable
- * pin */
 static void
 lcd_enable(lcd_t *lcd)
 {
@@ -37,38 +35,26 @@ lcd_enable(lcd_t *lcd)
 	HAL_Delay(1);
 }
 
-/* this function implements the algorithm necessary to send a command or
- * write data using only four data pins rather than the typical eight. */
 static void
 lcd_send(lcd_t *lcd, select_t select, uint8_t cmd)
 {
-	lcd->select = select;
-	lcd->data = (cmd & 0xF0) >> 4;
-	lcd_write(lcd);
+	lcd_write(lcd, select, (cmd & 0xF0) >> 4);
 	lcd_enable(lcd);
-
-	lcd->data = (cmd & 0x0F);
-	lcd_write(lcd);
+	lcd_write(lcd, selecct, cmd * 0xF);
 	lcd_enable(lcd);
 }
 
-/* a reset sequence must be run each time the lcd is powered on to enter four
- * bit operation. */
-void lcd_reset(lcd_t *lcd)
+void
+lcd_reset(lcd_t *lcd)
 {
-	lcd->select = COMMAND;
-	lcd->data = 0x3;
-	lcd_write(lcd);
-
+	lcd_write(lcd, COMMAND, 0x3);
 	HAL_Delay(15);
 	lcd_enable(lcd);
 	HAL_Delay(5);
 	lcd_enable(lcd);
 	HAL_Delay(1);
 	lcd_enable(lcd);
-
-	lcd->data = 0x2;
-	lcd_write(lcd);
+	lcd_write(lcd, COMMAND, 0x2);
 	lcd_enable(lcd);
 
 	lcd_send(lcd, COMMAND, 0x28); /* four bit input, two lines, 5x10 font */
@@ -79,7 +65,8 @@ void lcd_reset(lcd_t *lcd)
 	lcd_send(lcd, COMMAND, 0x0C); /* display on, cursor on */
 }
 
-void lcd_string(lcd_t *lcd, const char *line1, const char *line2)
+void
+lcd_string(lcd_t *lcd, const char *line1, const char *line2)
 {
 	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
 	/* both strings limited to sixteen characters */
