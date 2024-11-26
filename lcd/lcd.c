@@ -102,7 +102,7 @@ lcd_clear(lcd_t *lcd)
 void
 lcd_cur1(lcd_t *lcd, uint8_t cur)
 {
-	lcd_send(lcd, COMMAND, cur & 0x4F);
+	lcd_send(lcd, COMMAND, (cur & 0x4F) | 0x8);
 }
 
 /* move the cursor to an index on the second line */
