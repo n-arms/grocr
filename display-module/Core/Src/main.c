@@ -21,6 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#define NO_LC_TIM
+
 #include "i2c_rx.h"
 #include <string.h>
 #include <stdbool.h>
@@ -58,6 +60,14 @@ uint16_t int16_from_bool(bool arr[16]) {
 TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
+
+volatile I2C_rx_driver i2c_dr;
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	tick_I2C_rx_driver(&i2c_dr);
+}
+
+
 
 /* USER CODE END PV */
 
@@ -113,7 +123,7 @@ int main(void)
 	i2c.data_gpio = GPIOC;
 	i2c.data_pin = GPIO_PIN_1;
 	bool data[48];
-	I2C_rx_driver dr = new_I2C_rx_driver(i2c, data, 48, 500);
+	i2c_dr = new_I2C_rx_driver(i2c, data, 48, 500);
 
 	lcd_t lcd;
 	lcd.gpio_etc = GPIOA;
@@ -142,101 +152,115 @@ int main(void)
 	float lc_data[500];
 	uint32_t root_tick = 0;
 
-	uint32_t lcd_time = HAL_GetTick();
+	uint32_t lcd_time = -1;
+	HAL_TIM_Base_Start_IT(&htim3);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	while (1) {
-		float weight;
+  while (1)
+  {
+    /* USER CODE END WHILE */
 
-		tick_I2C_rx_driver(&dr);
-		if (poll_I2C_driver(&dr)) {
-			bool data[48];
-			memcpy(data, get_I2C_driver(&dr), 48);
-			reset_I2C_driver(&dr);
+    /* USER CODE BEGIN 3 */
+	float weight;
 
-			uint16_t data1 = ham_dec(int16_from_bool(data));
-			uint16_t data2 = ham_dec(int16_from_bool(data + 16));
-			uint16_t data3 = ham_dec(int16_from_bool(data + 32));
+	if (poll_I2C_driver(&i2c_dr)) {
+		bool data[48];
+		memcpy(data, get_I2C_driver(&i2c_dr), 48);
+		reset_I2C_driver(&i2c_dr);
 
-			if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
-					data3 == (uint16_t)-1)
-				continue;
-			weight = (data1 << 22 | data2 << 11 | data3) * lc_const;
-			__NOP();
-		}
+		uint16_t data1 = ham_dec(int16_from_bool(data));
+		uint16_t data2 = ham_dec(int16_from_bool(data + 16));
+		uint16_t data3 = ham_dec(int16_from_bool(data + 32));
 
-		if (!btn_prs && !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) { // button is pressed
-			empty = weight;
-			index = 0;
-
-			btn_prs = true;
-
-			char buf[16] = "zeroed at ";
-			snprintf(buf + 10, 6, "%5fg", weight);
-
-			lcd_clear(&lcd);
-			lcd_str(&lcd, "device has been");
-			lcd_cur2(&lcd, 0);
-			lcd_str(&lcd, buf);
+		if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
+				data3 == (uint16_t)-1)
 			continue;
-		}
-
-		if (!btn_prs)
-			continue;
-		if (abs(weight - empty) < 20 || weight < empty)
-			continue;
-		if (!first && abs(weight - lc_data[index - 1]) < 20)
-			continue;
-
+		weight = (data1 << 22 | data2 << 11 | data3) * lc_const;
 		__NOP();
+	}
 
-		if (!first) {
-			t0 = HAL_GetTick();
+	if (!btn_prs && !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) { // button is pressed
+		empty = weight;
+		index = 0;
 
-			lcd_clear(&lcd);
-			lcd_str(&lcd, "Estimate:       ");
-			lcd_cur2(&lcd, 0);
-			lcd_str(&lcd, "Weight:         ");
-		}
+		btn_prs = true;
 
-		first = true;
-		lc_data[index] = weight;
-		time_data[index] = HAL_GetTick() - t0;
-		++index;
+		char buf[16] = "zeroed at ";
+		snprintf(buf + 10, 6, "%5fg", weight);
 
-		if(index < 2)
-			continue;
+		lcd_clear(&lcd);
+		lcd_str(&lcd, "device has been");
+		lcd_cur2(&lcd, 0);
+		lcd_str(&lcd, buf);
+		continue;
+	}
 
-		root_tick = lsr_root(time_data, lc_data, index);
-		int32_t sec_remain = (root_tick-HAL_GetTick())/1000;
-		__NOP();
-		char lcd_ln1[16];
-
-		if(sec_remain < 0)
-			snprintf(lcd_ln1, 16, "NOW!");
-        else if(sec_remain < 60)
-        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain," s");
-        else if(sec_remain < 3600)
-        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/60," m");
-        else if(sec_remain < 86400)
-        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/3600," h");
-        else
-        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/86400," d");
+	if (!btn_prs)
+		continue;
 
 		char lcd_ln2[16];
-		snprintf(lcd_ln2, 16, "%4.fg", lc_data[index - 1]);
+		snprintf(lcd_ln2, 16, "%4.fg", weight);
+		lcd_cur2(&lcd, 11);
+		lcd_str(&lcd, lcd_ln2);
+		continue;
 
-		if(HAL_GetTick() - lcd_time > 1000){
-			lcd_cur1(&lcd, 11);
-			lcd_str(&lcd, lcd_ln1);
-			lcd_cur2(&lcd, 11);
-			lcd_str(&lcd, lcd_ln2);
+	if (abs(weight - empty) < 20 || weight < empty)
+		continue;
+	if (!first && abs(weight - lc_data[index - 1]) < 20)
+		continue;
 
-			lcd_time = HAL_GetTick();
-		}
+	__NOP();
+
+	if (!first) {
+		t0 = HAL_GetTick();
+
+		lcd_clear(&lcd);
+		lcd_str(&lcd, "Estimate:       ");
+		lcd_cur2(&lcd, 0);
+		lcd_str(&lcd, "Weight:         ");
 	}
+
+	first = true;
+	lc_data[index] = weight;
+	time_data[index] = HAL_GetTick() - t0;
+	++index;
+
+	if(index < 2) {
+		char lcd_ln2[16];
+		snprintf(lcd_ln2, 16, "%4.fg", lc_data[index - 1]);
+		lcd_cur2(&lcd, 11);
+		lcd_str(&lcd, lcd_ln2);
+		continue;
+	}
+
+	root_tick = lsr_root(time_data, lc_data, index);
+	int32_t sec_remain = (root_tick-HAL_GetTick())/1000;
+	__NOP();
+	char lcd_ln1[16];
+
+	if(sec_remain < 0)
+		snprintf(lcd_ln1, 16, "NOW!");
+	  else if(sec_remain < 60)
+		snprintf(lcd_ln1, 16, "%4d%s", sec_remain," s");
+	  else if(sec_remain < 3600)
+		snprintf(lcd_ln1, 16, "%4d%s", sec_remain/60," m");
+	  else if(sec_remain < 86400)
+		snprintf(lcd_ln1, 16, "%4d%s", sec_remain/3600," h");
+	  else
+		snprintf(lcd_ln1, 16, "%4d%s", sec_remain/86400," d");
+
+	snprintf(lcd_ln2, 16, "%4.fg", lc_data[index - 1]);
+
+		lcd_cur1(&lcd, 11);
+		lcd_str(&lcd, lcd_ln1);
+		lcd_cur2(&lcd, 11);
+		lcd_str(&lcd, lcd_ln2);
+
+		lcd_time = HAL_GetTick();
+  }
   /* USER CODE END 3 */
 }
 
@@ -305,7 +329,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 1;
+  htim3.Init.Prescaler = 13;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 41999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

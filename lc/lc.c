@@ -34,7 +34,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+/*void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	HAL_GPIO_TogglePin(hx711.config.pd_sck_gpio, hx711.config.pd_sck_pin);
 	int tick = ++hx711.current_index;
 	if (tick % 2 == 1) {
@@ -55,3 +55,4 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		__NOP();
 	}
 }
+*/
