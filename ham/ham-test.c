@@ -34,18 +34,23 @@ main(void)
 	uint16_t num = rand();
 	num >>= 5; /* num is an eleven bit value */
 
-	const uint16_t encoded = enc(num);
+	const uint16_t encoded = ham_enc(num);
 	for (uint16_t i = 1 << 15; i != 0; i >>= 1)
-		if (dec(encoded ^ i) != num)
+		if (ham_dec(encoded ^ i) != num)
 			bin(num), bin(encoded), bin(encoded ^ 1);
 
 	for (uint16_t i = (1 << 15) + (1 << 11); !pow2(i); i >>= 1)
-		if (dec(encoded ^ i) != 0)
+		if (ham_dec(encoded ^ i) != (uint16_t)-1)
 			bin(num), bin(encoded), bin(encoded ^ 1);
 
 	for (uint16_t i = (1 << 15) + (1 << 7); !pow2(i); i >>= 1)
-		if (dec(encoded ^ i) != 0)
+		if (ham_dec(encoded ^ i) != (uint16_t)-1)
 			bin(num), bin(encoded), bin(encoded ^ 1);
 
 	printf("FEDCBA9876543210\n");
+
+	uint32_t val = rand();
+	ham_t ham = ham_enc32(val);
+	if (val != ham_dec32(ham))
+		printf("ham32 encoding failed!\n");
 }
