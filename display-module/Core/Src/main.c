@@ -24,6 +24,10 @@
 #include "i2c_rx.h"
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include "ham.h"
+#include "lcd.h"
+#include "lsr.h"
 
 /* USER CODE END Includes */
 
@@ -34,6 +38,14 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+uint16_t int16_from_bool(bool arr[16]) {
+	uint16_t total = 0;
+	for (int i = 0; i < 16; i++) {
+		total = total * 2 + arr[i];
+	}
+	return total;
+}
 
 /* USER CODE END PD */
 
@@ -94,33 +106,42 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
-  /*
-  bool bits_sent[24];
-  memset(bits_sent, 0, sizeof(bits_sent));
-  short currentIndex = 0;
-  bool clkLastTick = 0;
-  uint64_t msSinceLastClkTick = HAL_GetTick();
 
-  int dataSent[10];
-  memset(dataSent, 0, sizeof(bits_sent));
-  short packetIndex = 0;
+  I2C_rx_config i2c;
+  i2c.clock_gpio = GPIOC;
+  i2c.clock_pin = GPIO_PIN_0;
+  i2c.data_gpio = GPIOC;
+  i2c.data_pin = GPIO_PIN_1;
+  bool data[48];
+  I2C_rx_driver dr = new_I2C_rx_driver(config, data, 48, 500);
+
+  lcd_t lcd;
+  lcd.gpio_etc = GPIOA;
+  lcd.gpio_data = GPIOB;
+  lcd.pin_select = GPIO_PIN_10;
+  lcd.pin_enable = GPIO_PIN_6;
+  lcd.pin1 = GPIO_PIN_3;
+  lcd.pin2 = GPIO_PIN_5;
+  lcd.pin3 = GPIO_PIN_4;
+  lcd.pin4 = GPIO_PIN_10;
+
+  lcd_reset(&lcd);
+  lcd_str(&lcd, "Waiting for", "first packet...");
+
+  uint32_t t0 = HAL_GetTick();
+  uint32_t reading = 0;
+  uint32_t empty = 0;
+  float lc_const = 0.0011389522; // units to ~grams
+
+  bool btn_was_pressed = 0;
+  uint32_t btn_press_start_time = 0xffffffff;
 
 
+  bool first = false;
 
-while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer to end
-	if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
-		msSinceLastClkTick = HAL_GetTick();
-	}
-}
-*/
-  I2C_rx_config config;
-  config.clock_gpio = GPIOC;
-  config.clock_pin = GPIO_PIN_0;
-  config.data_gpio = GPIOC;
-  config.data_pin = GPIO_PIN_1;
-
-  bool data[32];
-  I2C_rx_driver driver = new_I2C_rx_driver(config, data, 32, 500);
+  uint32_t index = 0;
+  uint32_t time_data[100]; // seconds
+  float lc_data[100];   // lc units
 
   /* USER CODE END 2 */
 
@@ -131,53 +152,69 @@ while(HAL_GetTick()-msSinceLastClkTick < 500){ // wait for last packet transfer 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  tick_I2C_rx_driver(&driver);
+	  tick_I2C_rx_driver( & driver);
+	  if (poll_I2C_driver( & driver)) {
+	    memcpy(data, get_I2C_driver( & driver), 48);
+	    reset_I2C_driver( & driver);
 
-	  if (poll_I2C_driver(&driver)) {
-		  memcpy(data, get_I2C_driver(&driver), 32);
-		  reset_I2C_driver(&driver);
+	    uint16_t data1 = ham_dec(int16_from_bool(data));
+	    uint16_t data2 = ham_dec(int16_from_bool(data + 16));
+	    uint16_t data3 = ham_dec(int16_from_bool(data + 32));
 
-		  uint64_t number = 0;
+	    if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
+	      data3 == (uint16_t)-1)
+	      reading = -1;
+	    else
+	      reading = data1 << 22 | data2 << 11 | data3;
 
-		  for (int i = 0; i < 32; i++) {
-			  number = number * 2 + (data[i] ? 1 : 0);
-		  }
+	    float weight = reading * lc_const;
 
-		  __NOP();
+	    if (abs(weight - empty) < 20 || weight < empty)
+	    	continue;
+
+	    if (!first && abs(weight - lc_data[index - 1]) < 20)
+	    	continue;
+
+	    first = true;
+
+
+	      // ling reg data
+	      uint32_t lc_reading = weight - empty;
+	      uint32_t time = HAL_GetTick() - time_0;
+	      ++index;
+	      // realloc lc_data to be 1 longer
+	      lc_data = (float * ) realloc(lc_data, (size) * sizeof(float));
+	      lc_data[size - 1] = lc_reading;
+	      // realloc time_data to be 1 longer
+	      time_data = (uint32_t * ) realloc(time_data, (size) * sizeof(uint32_t));
+	      time_data[size - 1] = time;
+
+	      int lc_data = (int)((load_cell_reading / lc_const) * 1000);
+	      char ln2_buffer[16];
+	      sprintf(ln2_buffer, "%s%d%s", "Cur. mass: ", lc_data, "g");
+	      lcd_str(&lcd, ln2_buffer, "so help us god.");
 	  }
-	  /*
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET){
-		  if(!clkLastTick){// when clock high and was low last tick
-			  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET){ //if data line high
-					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //write high to LED
-					  bits_sent[currentIndex] = 1; // write high to bit array
-
-				  } else {
-					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //otherwise to opposite
-					bits_sent[currentIndex] = 0;
-				  }
-			  clkLastTick = 1; //set last clock tick to high and
-			  ++currentIndex; // increment in bit array
-		  }
-		  msSinceLastClkTick = HAL_GetTick(); //always record time of last clock on
+	  bool is_btn_press = !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+	  if (btn_was_pressed && ((HAL_GetTick() - btn_press_start_time) > 3000)) {
+	    // zero load cell data
+	    empty = weight;
+	    time_0 = HAL_GetTick();
+	    btn_press_start_time = HAL_GetTick();
+	    for (int i = 0; i < 5; ++i) {
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	    	HAL_Delay(100);
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	    	HAL_Delay(100);
+	    }
+	    __NOP();
 	  }
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_RESET){ //if clock low
-		  clkLastTick = 0; // set last clock last tick to low
-		  }
-	  if(currentIndex == 3){//once bit array full, convert to data array
-		  int currentPacket = 0;
-		  for(short i = sizeof(bits_sent); i>0; --i){
-			  currentPacket <<= 1;
-			  currentPacket |= bits_sent[i];
-		  }
-		  dataSent[packetIndex] = currentPacket;
-		  ++packetIndex;
-		  currentIndex = 0;//reset bit array index
+	  if (is_btn_press) {
+	    if (!btn_was_pressed)
+	      btn_press_start_time = HAL_GetTick();
+	    btn_was_pressed = 1;
+	  } else {
+	    btn_was_pressed = 0;
 	  }
-	  if((HAL_GetTick()-msSinceLastClkTick) >= 500){// reset bit packet index if between packet sends
-		  currentIndex = 0;
-	  }
-	  */
   }
   /* USER CODE END 3 */
 }
