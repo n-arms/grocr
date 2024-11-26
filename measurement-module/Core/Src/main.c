@@ -21,9 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
-#include "lc.h"
 
+#include "i2c_tx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,11 +56,11 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 /* USER CODE END 0 */
 
 /**
@@ -96,17 +95,27 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  void int32_to_bool(int number, bool arr[32]) {
+      int mask = 1 << 31;
 
-  hx711_config config;
-  config.pd_sck_gpio = GPIOB;
-  config.pd_sck_pin = GPIO_PIN_0;
-  config.dout_gpio = GPIOA;
-  config.dout_pin = GPIO_PIN_4;
-  config.timer = &htim1;
+      for (int i = 0; i < 32; ++i) {
+          arr[i] = (number & mask) != 0;
+          mask >>= 1;
+      }
+  }
 
-  init_hx711_driver(config);
+  I2C_tx_config i2c_config;
+  i2c_config.clock_gpio = GPIOC;
+  i2c_config.clock_pin = GPIO_PIN_0;
+  i2c_config.data_gpio = GPIOC;
+  i2c_config.data_pin = GPIO_PIN_1;
+  i2c_config.millis_per_tick = 2;
+  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 32);
 
-
+  uint64_t next_data = HAL_GetTick();
+  //bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
+  bool data[32];
+  int24_to_bool(696969,data);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,11 +126,17 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    if (poll_hx711_driver(&hx711)) {
-      uint32_t data = get_hx711_driver(&hx711);
-      __NOP();
-    }
+	 tick_I2C_tx_driver(&i2c);
+
+	 uint64_t current_time = HAL_GetTick();
+
+	 if (HAL_GetTick() > next_data) {
+		 next_data += 4000;
+
+		 send_packet_I2C_driver(&i2c, data);
+	 }
   }
+  free_I2C_driver(&i2c);
   /* USER CODE END 3 */
 }
 

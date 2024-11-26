@@ -31,9 +31,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>lc</name>
+			<name>i2c</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/lc</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/i2c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
