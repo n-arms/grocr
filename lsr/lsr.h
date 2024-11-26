@@ -5,6 +5,8 @@
 #ifndef LSR_H
 #define LSR_H
 
+#include <stdint.h>
+
 /* least squares linear regression is a method to generate a line of best fit
  * for a series of data points. the algorithm used is as follows:
  *
@@ -19,6 +21,6 @@
 
 /* returns linear root of least squares linear regression of series of `len'
  * number of (`time', `level') ordered pairs */
-float lsr_root(uint32_t *time, float *level, int len);
+float lsr_root(uint32_t time[], float level[], int len);
 
 #endif /* LSR_H */
