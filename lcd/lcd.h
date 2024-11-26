@@ -19,7 +19,13 @@ typedef struct lcd {
 
 /* lcd_reset must be run before information can be written to the lcd */
 void lcd_reset(lcd_t *lcd);
-/* lcd_str writes to the two lines of the lcd display */
-void lcd_str(lcd_t *lcd, const char *line1, const char *line2);
+/* clear and return to the first line */
+void lcd_clear(lcd_t *lcd);
+/* move the cursor to an index on the first line */
+void lcd_cur1(lcd_t *lcd, uint8_t cur);
+/* move the cursor to an index on the second line */
+void lcd_cur2(lcd_t *lcd, uint8_t cur);
+/* write data to the lcd at the starting at the cursor index */
+void lcd_str(lcd_t *lcd, const char *str);
 
 #endif /* LCD_H */
