@@ -126,11 +126,14 @@ int main(void)
 	lcd.pin4 = GPIO_PIN_10;
 
 	lcd_reset(&lcd);
-	lcd_str(&lcd, "press button to", "zero");
+	lcd_cur1(&lcd, 0);
+	lcd_str(&lcd, "press button to");
+	lcd_cur2(&lcd, 0);
+	lcd_str(&lcd, "indicate zero");
 
 	uint32_t t0;
 	float empty;
-	float lc_const = 0.0017;
+	float lc_const = 0.0012;
 
 	bool btn_prs = false, first = false;
 
@@ -139,11 +142,12 @@ int main(void)
 	float lc_data[500];
 	uint32_t root_tick = 0;
 
+	uint32_t lcd_time = HAL_GetTick();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	for (;;) {
+	while (1) {
 		float weight;
 
 		tick_I2C_rx_driver(&dr);
@@ -155,19 +159,27 @@ int main(void)
 			uint16_t data1 = ham_dec(int16_from_bool(data));
 			uint16_t data2 = ham_dec(int16_from_bool(data + 16));
 			uint16_t data3 = ham_dec(int16_from_bool(data + 32));
-			
+
 			if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
 					data3 == (uint16_t)-1)
 				continue;
 			weight = (data1 << 22 | data2 << 11 | data3) * lc_const;
+			__NOP();
 		}
 
-		if (!btn_prs && !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) { /* button is pressed */
+		if (!btn_prs && !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) { // button is pressed
 			empty = weight;
-			t0 = HAL_GetTick();
 			index = 0;
 
 			btn_prs = true;
+
+			char buf[16] = "zeroed at ";
+			snprintf(buf + 10, 6, "%5fg", weight);
+
+			lcd_clear(&lcd);
+			lcd_str(&lcd, "device has been");
+			lcd_cur2(&lcd, 0);
+			lcd_str(&lcd, buf);
 			continue;
 		}
 
@@ -178,31 +190,52 @@ int main(void)
 		if (!first && abs(weight - lc_data[index - 1]) < 20)
 			continue;
 
+		__NOP();
+
+		if (!first) {
+			t0 = HAL_GetTick();
+
+			lcd_clear(&lcd);
+			lcd_str(&lcd, "Estimate:       ");
+			lcd_cur2(&lcd, 0);
+			lcd_str(&lcd, "Weight:         ");
+		}
+
 		first = true;
 		lc_data[index] = weight;
 		time_data[index] = HAL_GetTick() - t0;
 		++index;
 
+		if(index < 2)
+			continue;
+
 		root_tick = lsr_root(time_data, lc_data, index);
 		int32_t sec_remain = (root_tick-HAL_GetTick())/1000;
+		__NOP();
 		char lcd_ln1[16];
 
 		if(sec_remain < 0)
-			snprintf(lcd_ln1, 16, "Est. time: NOW!");
+			snprintf(lcd_ln1, 16, "NOW!");
         else if(sec_remain < 60)
-        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain," s");
+        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain," s");
         else if(sec_remain < 3600)
-        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/60," m");
+        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/60," m");
         else if(sec_remain < 86400)
-        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/3600," h");
+        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/3600," h");
         else
-        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/86400," d");
-
+        	snprintf(lcd_ln1, 16, "%4d%s", sec_remain/86400," d");
 
 		char lcd_ln2[16];
-		snprintf(lcd_ln2, 16, "Weight: %.fg", lc_data[index - 1]);
-		lcd_str(&lcd, lcd_ln1, lcd_ln2);
-		HAL_Delay(5000);
+		snprintf(lcd_ln2, 16, "%4.fg", lc_data[index - 1]);
+
+		if(HAL_GetTick() - lcd_time > 1000){
+			lcd_cur1(&lcd, 11);
+			lcd_str(&lcd, lcd_ln1);
+			lcd_cur2(&lcd, 11);
+			lcd_str(&lcd, lcd_ln2);
+
+			lcd_time = HAL_GetTick();
+		}
 	}
   /* USER CODE END 3 */
 }
