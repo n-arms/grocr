@@ -31,9 +31,29 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>ham</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/ham</locationURI>
+		</link>
+		<link>
 			<name>i2c</name>
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/i2c</locationURI>
+		</link>
+		<link>
+			<name>lc</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/lc</locationURI>
+		</link>
+		<link>
+			<name>lcd</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/lcd</locationURI>
+		</link>
+		<link>
+			<name>lsr</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/lsr</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

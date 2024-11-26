@@ -5,6 +5,8 @@
 #ifndef LSR_H
 #define LSR_H
 
+#include <stdint.h>
+
 /* least squares linear regression is a method to generate a line of best fit
  * for a series of data points. the algorithm used is as follows:
  *
