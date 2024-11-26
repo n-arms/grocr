@@ -109,7 +109,7 @@ lcd_cur1(lcd_t *lcd, uint8_t cur)
 void
 lcd_cur2(lcd_t *lcd, uint8_t cur)
 {
-	lcd_send(lcd, COMMAND, (cur & 0x4F) | 0xC);
+	lcd_send(lcd, COMMAND, (cur & 0x4F) | 0xC0);
 }
 
 /* write data to the lcd at the starting at the cursor index */
