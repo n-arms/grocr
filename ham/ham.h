@@ -28,20 +28,20 @@
  * assumed and negative one is returned instead of a corrected value. */
 
 /* hamming encodes an eleven bit value */
-uint16_t enc(uint16_t val);
+uint16_t ham_enc(uint16_t val);
 
 /* hamming decodes an eleven bit value */
-uint16_t dec(uint16_t val);
+uint16_t ham_dec(uint16_t val);
 
 typedef struct ham {
 	uint16_t msg1, msg2, msg3;
 } ham_t;
 
 /* hamming encodes a thirty-two bit value */
-ham_t enc32(uint32_t val);
+ham_t ham_enc32(uint32_t val);
 
 /* hamming decodes a thirty-two bit value */
-uint32_t dec32(ham_t ham);
+uint32_t ham_dec32(ham_t ham);
 
 
 #endif /* HAM_H */
