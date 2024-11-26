@@ -107,115 +107,103 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-  I2C_rx_config i2c;
-  i2c.clock_gpio = GPIOC;
-  i2c.clock_pin = GPIO_PIN_0;
-  i2c.data_gpio = GPIOC;
-  i2c.data_pin = GPIO_PIN_1;
-  bool data[48];
-  I2C_rx_driver dr = new_I2C_rx_driver(config, data, 48, 500);
+	I2C_rx_config i2c;
+	i2c.clock_gpio = GPIOC;
+	i2c.clock_pin = GPIO_PIN_0;
+	i2c.data_gpio = GPIOC;
+	i2c.data_pin = GPIO_PIN_1;
+	bool data[48];
+	I2C_rx_driver dr = new_I2C_rx_driver(i2c, data, 48, 500);
 
-  lcd_t lcd;
-  lcd.gpio_etc = GPIOA;
-  lcd.gpio_data = GPIOB;
-  lcd.pin_select = GPIO_PIN_10;
-  lcd.pin_enable = GPIO_PIN_6;
-  lcd.pin1 = GPIO_PIN_3;
-  lcd.pin2 = GPIO_PIN_5;
-  lcd.pin3 = GPIO_PIN_4;
-  lcd.pin4 = GPIO_PIN_10;
+	lcd_t lcd;
+	lcd.gpio_etc = GPIOA;
+	lcd.gpio_data = GPIOB;
+	lcd.pin_select = GPIO_PIN_10;
+	lcd.pin_enable = GPIO_PIN_6;
+	lcd.pin1 = GPIO_PIN_3;
+	lcd.pin2 = GPIO_PIN_5;
+	lcd.pin3 = GPIO_PIN_4;
+	lcd.pin4 = GPIO_PIN_10;
 
-  lcd_reset(&lcd);
-  lcd_str(&lcd, "Waiting for", "first packet...");
+	lcd_reset(&lcd);
+	lcd_str(&lcd, "press button to", "zero");
 
-  uint32_t t0 = HAL_GetTick();
-  uint32_t reading = 0;
-  uint32_t empty = 0;
-  float lc_const = 0.0011389522; // units to ~grams
+	uint32_t t0;
+	float empty;
+	float lc_const = 0.0017;
 
-  bool btn_was_pressed = 0;
-  uint32_t btn_press_start_time = 0xffffffff;
+	bool btn_prs = false, first = false;
 
-
-  bool first = false;
-
-  uint32_t index = 0;
-  uint32_t time_data[100]; // seconds
-  float lc_data[100];   // lc units
+	uint32_t index = 0;
+	uint32_t time_data[500];
+	float lc_data[500];
+	uint32_t root_tick = 0;
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
+	for (;;) {
+		float weight;
 
-    /* USER CODE BEGIN 3 */
-	  tick_I2C_rx_driver( & driver);
-	  if (poll_I2C_driver( & driver)) {
-	    memcpy(data, get_I2C_driver( & driver), 48);
-	    reset_I2C_driver( & driver);
+		tick_I2C_rx_driver(&dr);
+		if (poll_I2C_driver(&dr)) {
+			bool data[48];
+			memcpy(data, get_I2C_driver(&dr), 48);
+			reset_I2C_driver(&dr);
 
-	    uint16_t data1 = ham_dec(int16_from_bool(data));
-	    uint16_t data2 = ham_dec(int16_from_bool(data + 16));
-	    uint16_t data3 = ham_dec(int16_from_bool(data + 32));
+			uint16_t data1 = ham_dec(int16_from_bool(data));
+			uint16_t data2 = ham_dec(int16_from_bool(data + 16));
+			uint16_t data3 = ham_dec(int16_from_bool(data + 32));
+			
+			if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
+					data3 == (uint16_t)-1)
+				continue;
+			weight = (data1 << 22 | data2 << 11 | data3) * lc_const;
+		}
 
-	    if (data1 == (uint16_t)-1 || data2 == (uint16_t)-1 ||
-	      data3 == (uint16_t)-1)
-	      reading = -1;
-	    else
-	      reading = data1 << 22 | data2 << 11 | data3;
+		if (!btn_prs && !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) { /* button is pressed */
+			empty = weight;
+			t0 = HAL_GetTick();
+			index = 0;
 
-	    float weight = reading * lc_const;
+			btn_prs = true;
+			continue;
+		}
 
-	    if (abs(weight - empty) < 20 || weight < empty)
-	    	continue;
+		if (!btn_prs)
+			continue;
+		if (abs(weight - empty) < 20 || weight < empty)
+			continue;
+		if (!first && abs(weight - lc_data[index - 1]) < 20)
+			continue;
 
-	    if (!first && abs(weight - lc_data[index - 1]) < 20)
-	    	continue;
+		first = true;
+		lc_data[index] = weight;
+		time_data[index] = HAL_GetTick() - t0;
+		++index;
 
-	    first = true;
+		root_tick = lsr_root(time_data, lc_data, index);
+		int32_t sec_remain = (root_tick-HAL_GetTick())/1000;
+		char lcd_ln1[16];
+
+		if(sec_remain < 0)
+			snprintf(lcd_ln1, 16, "Est. time: NOW!");
+        else if(sec_remain < 60)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain," s");
+        else if(sec_remain < 3600)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/60," m");
+        else if(sec_remain < 86400)
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/3600," h");
+        else
+        	snprintf(lcd_ln1, 16, "Est. time: %d%s", sec_remain/86400," d");
 
 
-	      // ling reg data
-	      uint32_t lc_reading = weight - empty;
-	      uint32_t time = HAL_GetTick() - time_0;
-	      ++index;
-	      // realloc lc_data to be 1 longer
-	      lc_data = (float * ) realloc(lc_data, (size) * sizeof(float));
-	      lc_data[size - 1] = lc_reading;
-	      // realloc time_data to be 1 longer
-	      time_data = (uint32_t * ) realloc(time_data, (size) * sizeof(uint32_t));
-	      time_data[size - 1] = time;
-
-	      int lc_data = (int)((load_cell_reading / lc_const) * 1000);
-	      char ln2_buffer[16];
-	      sprintf(ln2_buffer, "%s%d%s", "Cur. mass: ", lc_data, "g");
-	      lcd_str(&lcd, ln2_buffer, "so help us god.");
-	  }
-	  bool is_btn_press = !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-	  if (btn_was_pressed && ((HAL_GetTick() - btn_press_start_time) > 3000)) {
-	    // zero load cell data
-	    empty = weight;
-	    time_0 = HAL_GetTick();
-	    btn_press_start_time = HAL_GetTick();
-	    for (int i = 0; i < 5; ++i) {
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-	    	HAL_Delay(100);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	    	HAL_Delay(100);
-	    }
-	    __NOP();
-	  }
-	  if (is_btn_press) {
-	    if (!btn_was_pressed)
-	      btn_press_start_time = HAL_GetTick();
-	    btn_was_pressed = 1;
-	  } else {
-	    btn_was_pressed = 0;
-	  }
-  }
+		char lcd_ln2[16];
+		snprintf(lcd_ln2, 16, "Weight: %.fg", lc_data[index - 1]);
+		lcd_str(&lcd, lcd_ln1, lcd_ln2);
+		HAL_Delay(5000);
+	}
   /* USER CODE END 3 */
 }
 
