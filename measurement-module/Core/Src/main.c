@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "i2c_tx.h"
+#include "ham.h"
+#include "lc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,12 +97,9 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
-  void int32_to_bool(int number, bool arr[32]) {
-      int mask = 1 << 31;
-
-      for (int i = 0; i < 32; ++i) {
-          arr[i] = (number & mask) != 0;
-          mask >>= 1;
+  void int16_to_bool(uint16_t number, bool arr[16]) {
+      for (int i = 0; i < 16; ++i) {
+    	  arr[i] = (number >> (15 - i)) & 1;
       }
   }
 
@@ -110,12 +109,20 @@ int main(void)
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
   i2c_config.millis_per_tick = 2;
-  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 32);
+  I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 48);
+
+  hx711_config hx711_config;
+  hx711_config.dout_gpio = GPIOA;
+  hx711_config.dout_pin = GPIO_PIN_4;
+  hx711_config.pd_sck_gpio = GPIOB;
+  hx711_config.pd_sck_pin = GPIO_PIN_0;
+  hx711_config.timer = &htim1;
+
+  init_hx711_driver(hx711_config);
 
   uint64_t next_data = HAL_GetTick();
-  //bool data[24] = { 0,1,1, 0,1,1, 0,0,1, 0,0,1, 1,0,0, 1,0,0, 1,1,0, 1,1,0 };
-  bool data[32];
-  int32_to_bool(696969,data);
+  bool data[48];
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,10 +136,18 @@ int main(void)
 
 	 tick_I2C_tx_driver(&i2c);
 
-	 uint64_t current_time = HAL_GetTick();
-
-	 if (HAL_GetTick() > next_data) {
+	 if (HAL_GetTick() > next_data && poll_hx711_driver(&hx711)) {
 		 next_data += 4000;
+
+		 uint32_t num = get_hx711_driver(&hx711);
+
+		  uint16_t data1 = ham_enc((num >> 22) & 0x7FF);
+		  uint16_t data2 = ham_enc((num >> 11) & 0x7FF);
+		  uint16_t data3 = ham_enc(num & 0x7FF);
+
+		  int16_to_bool(data1, data);
+		  int16_to_bool(data2, data + 16);
+		  int16_to_bool(data3, data + 32);
 
 		 send_packet_I2C_driver(&i2c, data);
 	 }
