@@ -3,10 +3,18 @@
  * see LICENCE file for licensing information */
 
 #include <stdint.h>
-#include <string.h>
 
 #include "lcd.h"
 
+#ifdef LCD_TEST
+int HAL_GPIO_WritePin(int *a, int b, int c);
+int HAL_Delay(int a);
+#define GPIO_PIN_SET 0
+#define GPIO_PIN_RESET 0
+#endif /* LCD_TEST */
+
+/* a select bit must be sent with the data to indicate to the lcd whether a
+ * command or data is being sent */
 typedef enum select {
 	COMMAND = 0,
 	DATA = 1
@@ -14,7 +22,7 @@ typedef enum select {
 
 static void lcd_write(lcd_t *lcd, select_t select, uint8_t data);
 static void lcd_enable(lcd_t *lcd);
-static void lcd_send(lcd_t *lcd, uint8_t cmd, select_t select);
+static void lcd_send(lcd_t *lcd, select_t select, uint8_t cmd);
 
 /* lcd_write writes out given values to the gpio pins.  the data pins must
  * correspond to the lcd pins as follows:
@@ -34,7 +42,7 @@ lcd_write(lcd_t *lcd, select_t select, uint8_t data)
 
 /* lcd_enable activates the enable pin on the lcd, which causes a command or
  * data to be sent on the falling edge of a pulse.  the enable pin must be held
- * for 450ns, but is held for 1ms by the delays */
+ * for at least 450ns, but is held for 1ms by the delays */
 static void
 lcd_enable(lcd_t *lcd)
 {
@@ -81,13 +89,12 @@ lcd_reset(lcd_t *lcd)
 	lcd_send(lcd, COMMAND, 0x0C); /* display on, cursor off */
 }
 
-/* lcd_string clears the screen then sends a series of up to 16 characters for
+/* lcd_str clears the screen then sends a series of up to 16 characters for
  * each line.  after writing the first line, a command is run to move the
  * write address to 0x40, which is 64 characters into the rom in the lcd and
- * the start of the second line
- */
+ * the start of the second line */
 void
-lcd_string(lcd_t *lcd, const char *line1, const char *line2)
+lcd_str(lcd_t *lcd, const char *line1, const char *line2)
 {
 	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
 	/* both strings limited to sixteen characters */

@@ -5,7 +5,11 @@
 #ifndef LCD_H
 #define LCD_H
 
+#ifndef LCD_TEST
 #include "stm32f4xx_hal.h"
+#else /* LCD_TEST */
+typedef int GPIO_TypeDef;
+#endif /* LCD_TEST */
 
 /* lcd_t must be populated by gpio configurations and pin numbers */
 typedef struct lcd {
