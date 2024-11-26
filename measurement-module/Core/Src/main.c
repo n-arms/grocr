@@ -21,7 +21,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 #include "i2c_tx.h"
 /* USER CODE END Includes */
 
@@ -95,6 +94,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+
   void int32_to_bool(int number, bool arr[32]) {
       int mask = 1 << 31;
 
@@ -125,6 +125,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 
 	 tick_I2C_tx_driver(&i2c);
 
