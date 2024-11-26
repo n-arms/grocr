@@ -29,6 +29,28 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
+typedef struct {
+	uint32_t *data;
+	size_t length;
+} low_pass_filter;
+
+low_pass_filter new_low_pass_filter(size_t length) {
+	uint32_t *data = (uint32_t *) malloc(sizeof(uint32_t) * length);
+	low_pass_filter filter;
+	filter.data = data;
+	filter.length = length;
+	return filter;
+}
+
+uint32_t calculate_low_pass(low_pass_filter filter, uint32_t new_value) {
+	uint32_t sum = 0;
+	for (int i = 0; i < filter.length - 1; i++) {
+		filter.data[i + 1] = filter.data[i];
+		sum += filter.data[i];
+	}
+	return (sum + new_value) / filter.length;
+}
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -108,7 +130,7 @@ int main(void)
   i2c_config.clock_pin = GPIO_PIN_0;
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
-  i2c_config.millis_per_tick = 2;
+  i2c_config.millis_per_tick = 100;
   I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 48);
 
   hx711_config hx711_config;
@@ -137,7 +159,7 @@ int main(void)
 	 tick_I2C_tx_driver(&i2c);
 
 	 if (HAL_GetTick() > next_data && poll_hx711_driver(&hx711)) {
-		 next_data += 4000;
+		 next_data += 11000;
 
 		 uint32_t num = get_hx711_driver(&hx711);
 

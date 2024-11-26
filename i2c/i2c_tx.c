@@ -22,6 +22,8 @@ void free_I2C_driver(I2C_tx_driver *driver) {
 }
 
 void tick_I2C_tx_driver(I2C_tx_driver *driver) {
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
 	if (driver -> sending_data && HAL_GetTick() > driver -> next_tick) {
 		if (driver -> state == CLOCK_END) {
 			driver -> state = DATA_ON_CLOCK_LOW;
