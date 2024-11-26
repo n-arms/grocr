@@ -14,7 +14,7 @@ typedef enum select {
 
 static void lcd_write(lcd_t *lcd, select_t select, uint8_t data);
 static void lcd_enable(lcd_t *lcd);
-static void lcd_send(lcd_t *lcd, uint8_t cmd, select_t select);
+static void lcd_send(lcd_t *lcd, select_t select, uint8_t cmd);
 
 /* lcd_write writes out given values to the gpio pins.  the data pins must
  * correspond to the lcd pins as follows:
@@ -87,7 +87,7 @@ lcd_reset(lcd_t *lcd)
  * the start of the second line
  */
 void
-lcd_string(lcd_t *lcd, const char *line1, const char *line2)
+lcd_str(lcd_t *lcd, const char *line1, const char *line2)
 {
 	lcd_send(lcd, COMMAND, 0x01); /* clear and return to first line */
 	/* both strings limited to sixteen characters */
