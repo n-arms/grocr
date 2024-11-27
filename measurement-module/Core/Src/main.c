@@ -130,7 +130,7 @@ int main(void)
   i2c_config.clock_pin = GPIO_PIN_0;
   i2c_config.data_gpio = GPIOC;
   i2c_config.data_pin = GPIO_PIN_1;
-  i2c_config.millis_per_tick = 100;
+  i2c_config.millis_per_tick = 8;
   I2C_tx_driver i2c = new_I2C_tx_driver(i2c_config, 48);
 
   hx711_config hx711_config;
@@ -144,6 +144,8 @@ int main(void)
 
   uint64_t next_data = HAL_GetTick();
   bool data[48];
+
+  uint32_t prev_num = -1;
 
   /* USER CODE END 2 */
 
@@ -159,9 +161,17 @@ int main(void)
 	 tick_I2C_tx_driver(&i2c);
 
 	 if (HAL_GetTick() > next_data && poll_hx711_driver(&hx711)) {
-		 next_data += 11000;
+		 next_data += 2000;
 
 		 uint32_t num = get_hx711_driver(&hx711);
+		 __NOP();
+		 if(abs(num-prev_num) < 1500 && num > 15000){ // check if last 2 packets are similar
+			 prev_num = num;
+			 __NOP();
+			 continue;
+		 }
+		 prev_num = num;
+		 __NOP();
 
 		  uint16_t data1 = ham_enc((num >> 22) & 0x7FF);
 		  uint16_t data2 = ham_enc((num >> 11) & 0x7FF);
