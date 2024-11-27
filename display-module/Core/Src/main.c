@@ -175,10 +175,7 @@ int main(void)
 
 	uint32_t t0;
 	float empty;
-	//float lc_const = 0.0012;
 	float lc_const = 0.00122;
-
-	bool btn_prs = false, first = false;
 
 	uint32_t index = 0;
 	uint32_t time_data[500];
@@ -242,7 +239,7 @@ int main(void)
 		lcd_str(&lcd, buf);
 		lcd_cur2(&lcd, 0);
 		if (index < 2) {
-			snprintf(buf, 16, "not enough data (%d)", index);
+			snprintf(buf, 16, "missing data (%d)", index);
 		} else {
 			snprintf(buf, 16, "projected %d s", time_to_empty);
 
