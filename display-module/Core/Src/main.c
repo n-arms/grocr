@@ -143,7 +143,8 @@ int main(void)
 
 	uint32_t t0;
 	float empty;
-	float lc_const = 0.0012;
+	//float lc_const = 0.0012;
+	float lc_const = 0.00122;
 
 	bool btn_prs = false, first = false;
 
